@@ -134,7 +134,9 @@ Tests for the re-ranking service are located in the [reciprocal_rank_fusion_serv
 <img src="images/mage/pipeline_steps_overview.png" width="250">
 
 # How to Start the Solution Locally
-Local execution is the simplest way to test the solution components. It uses a local LLM model and does not require access to AWS services. However, note that the local LLM shows average performance for generating German responses.
+Local execution is the simplest way to test the solution components. It uses a local LLM model and does not require access to external services and API keys.
+
+However, note that the local LLM shows average performance for generating German responses.
 
 ## Run Components as Docker Containers
 To start the solution, run the following command (it may take 30-40 minutes or more):
