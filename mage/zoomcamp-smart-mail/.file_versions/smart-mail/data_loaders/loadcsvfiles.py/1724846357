@@ -1,0 +1,57 @@
+import re
+
+from mage_ai.shared.files import get_absolute_paths_from_all_files
+
+if "data_loader" not in globals():
+    from mage_ai.data_preparation.decorators import data_loader
+if "test" not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+
+@data_loader
+def ingest_files(*args, **kwargs):
+    kwarg_logger = kwargs.get('logger')
+
+    kwarg_logger.info('Test logger info')
+    """
+    Template for loading data from filesystem.
+    Load data from 1 file or multiple file directories.
+
+    Args:
+        *args: Variable length argument list.
+        **kwargs: Arbitrary keyword arguments.
+
+    Keyword Args:
+        path (str): Path to file directory.
+        exclude_pattern (str): Exclude pattern for file paths.
+        include_pattern (str): Include pattern for file paths.
+
+    Yields:
+        str: Content of each file.
+    """
+    path = kwargs.get("path") or ""
+    print(f"Loading data from {path}")
+
+    exclude_pattern = kwargs.get("exclude_pattern")
+    include_pattern = kwargs.get("include_pattern") or "*.csv"
+
+    paths = get_absolute_paths_from_all_files(
+        starting_full_path_directory=path,
+        comparator=lambda path: (
+            not exclude_pattern or not re.search(exclude_pattern, path or "")
+        )
+        and (not include_pattern or re.search(include_pattern, path or "")),
+    )
+
+    for path, _, _ in paths:
+        print(path)
+        with open(path, "r") as file:
+            yield file.read()
+
+
+@test
+def test_output(output, *args) -> None:
+    """
+    Template code for testing the output of the block.
+    """
+    assert output is not None, "The output is undefined"

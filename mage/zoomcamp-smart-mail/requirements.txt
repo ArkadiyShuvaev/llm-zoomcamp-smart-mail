@@ -1,0 +1,6 @@
+awswrangler
+pyarrow
+pandas
+python-docx
+elasticsearch
+sentence-transformers

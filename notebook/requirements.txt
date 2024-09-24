@@ -1,0 +1,12 @@
+tqdm
+elasticsearch
+boto3
+boto3-stubs[bedrock-runtime]
+streamlit
+requests
+sentence-transformers
+psycopg2-binary
+types-psycopg2
+sqlalchemy
+python-dotenv
+seaborn

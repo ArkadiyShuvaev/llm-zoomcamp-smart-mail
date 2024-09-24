@@ -1,0 +1,37 @@
+{
+  "name": "App",
+  "dockerComposeFile": [
+    "../../docker-compose.yml",
+    "../../docker-compose.devcontainer.smart_mail.yml"
+  ],
+  "service": "app",
+  "shutdownAction": "none",
+  "workspaceFolder": "/workspace/smart_mail",
+  "workspaceMount": "source=${localWorkspaceFolder}/smart_mail,target=/workspace,type=bind,consistency=cached",
+  "mounts": [
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws/credentials,target=/home/vscode/.aws/credentials,type=bind",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/pip,target=/home/vscode/.cache/pip,type=bind"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.flake8",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "ms-vscode-remote.remote-containers",
+        "ms-python.isort",
+        "ms-python.mypy-type-checker",
+        "ms-python.black-formatter",
+        "GitHub.copilot-chat",
+        "mechatroner.rainbow-csv",
+        "donjayamanne.python-environment-manager",
+        "ms-python.autopep8"
+      ]
+    }
+  },
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.cache && pip install -U --user -r requirements.txt",
+  "containerEnv": {
+    "PYTHONPATH": "/workspace/smart_mail/src"
+  }
+}

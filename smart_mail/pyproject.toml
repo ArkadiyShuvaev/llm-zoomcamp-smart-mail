@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "smart-mail"
+version = "0.1.0"
+description = "A short description of your project"
+authors = ["Arkadiy Shuvaev <shuvaev.arkady@gmail.com>"]
+readme = "readme.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.25.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

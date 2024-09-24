@@ -1,0 +1,34 @@
+{
+  "name": "Mage",
+  "dockerComposeFile": "../../docker-compose.yml",
+  "service": "mage",
+  "shutdownAction": "none",
+  "workspaceFolder": "/zoomcamp-smart-mail/mage",
+  "workspaceMount": "source=${localWorkspaceFolder}/mage,target=/zoomcamp-smart-mail,type=bind",
+  "mounts": [
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws/credentials,target=/root/.aws/credentials,type=bind",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/pip,target=/root/.cache/pip,type=bind"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.flake8",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.vscode-jupyter-cell-tags",
+        "ms-toolsai.jupyter-renderers",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "ms-vscode-remote.remote-containers",
+        "ms-toolsai.jupyter-keymap",
+        "ms-python.isort",
+        "ms-python.mypy-type-checker",
+        "ms-python.black-formatter",
+        "GitHub.copilot-chat"
+      ]
+    }
+  }
+  //,
+  // Use 'postCreateCommand' to run commands after the container is created.
+  //"postCreateCommand": "pip install -U --user -r requirements.txt"
+}

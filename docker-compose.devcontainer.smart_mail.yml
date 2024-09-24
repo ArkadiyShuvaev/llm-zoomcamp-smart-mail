@@ -1,0 +1,10 @@
+# Extends a base configuration of the service "app" is definded in docker-compose.xml.
+# The overritten configuration is used with the DevContainer 'smart_mail'.
+# See the file ".devcontainer\smart_mail\devcontainer.json" to get more details.
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/python:latest
+    volumes:
+      # Mount the root folder that contains .git
+      - .:/workspace:cached
+    command: sleep infinity

@@ -1,0 +1,45 @@
+{
+  "name": "Notebook",
+  "dockerComposeFile": [
+    "../../docker-compose.yml",
+    "../../docker-compose.devcontainer.notebook.yml"
+  ],
+  "service": "notebook",
+  "shutdownAction": "none",
+  "remoteUser": "jovyan",
+  "workspaceFolder": "/home/jovyan/work/notebook",
+  "workspaceMount": "source=${localWorkspaceFolder}/notebook,target=/home/jovyan/work,type=bind,consistency=cached",
+  "mounts": [
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws/credentials,target=/home/jovyan/.aws/credentials,type=bind",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache,target=/home/jovyan/.cache,type=bind"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.flake8",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.vscode-jupyter-cell-tags",
+        "ms-toolsai.jupyter-renderers",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "ms-vscode-remote.remote-containers",
+        "ms-toolsai.jupyter-keymap",
+        "ms-python.isort",
+        "ms-python.mypy-type-checker",
+        "ms-python.black-formatter",
+        "GitHub.copilot-chat",
+        "mechatroner.rainbow-csv",
+        "donjayamanne.python-environment-manager",
+        "ms-toolsai.vscode-jupyter-slideshow",
+        "ms-python.autopep8",
+        "ms-python.pylint",
+        "ms-toolsai.vscode-jupyter-powertoys"
+      ]
+    }
+  },
+  "postCreateCommand": "export PATH=$PATH:/home/jovyan/.local/bin && echo 'export PATH=$PATH:/home/jovyan/.local/bin' >> /home/jovyan/.bashrc && . /home/jovyan/.bashrc && pip install -U --user -r requirements.txt",
+  "containerEnv": {
+    "PYTHONPATH": "/home/jovyan/work/smart_mail/src:/home/jovyan/work/notebook/utils"
+  }
+}

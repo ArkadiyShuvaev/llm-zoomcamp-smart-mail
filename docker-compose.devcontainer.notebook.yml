@@ -1,0 +1,22 @@
+# Creates a service 'notebook' to use it with the DevContainer configuration 'notebook'.
+# See the file ".devcontainer\notebook\devcontainer.json" to get more details.
+services:
+  notebook:
+    image: quay.io/jupyter/minimal-notebook:latest
+    ports:
+      - "8888:8888"
+    depends_on:
+      - db
+    links:
+      - db
+    volumes:
+      - .:/home/jovyan/work:cached
+    env_file:
+      - ./notebook/.env.dev
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - GRANT_SUDO=yes
+      - JUPYTER_TOKEN=easy
+      - CHOWN_EXTRA=/home/jovyan/work
+      - CHOWN_EXTRA_OPTS=-R
+    user: root

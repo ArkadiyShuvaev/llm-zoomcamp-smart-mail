@@ -1,0 +1,23 @@
+# Extends a base configuration with the services to launch the test environment.
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./smart_mail/Dockerfile
+    volumes:
+      - ${USERPROFILE}/.aws/credentials:/root/.aws/credentials:ro
+    environment:
+      - USE_LOCAL_LLM=true
+      - LOCAL_LLM_URL=http://ollama-gemma2b:11434/api/generate
+      - LOCAL_LLM_MODEL_NAME=gemma:2b
+    depends_on:
+      - ollama-gemma2b
+
+  ollama-gemma2b:
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama.gemma2b
+    ports:
+      - 11434:11434
+    environment:
+      - OLLAMA_USE_CPU=1

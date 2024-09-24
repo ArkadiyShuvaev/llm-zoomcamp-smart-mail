@@ -1,0 +1,12 @@
+FROM ollama/ollama:latest as builder
+
+RUN ollama serve & \
+    sleep 10 && \
+    ollama pull gemma:2b
+
+FROM ollama/ollama:latest
+
+COPY --from=builder /root/.ollama/ /root/.ollama
+
+ENTRYPOINT ["ollama"]
+CMD ["serve"]

@@ -1,0 +1,3 @@
+# ignore the length of the string
+[flake]
+max-line-length = 120
