@@ -143,10 +143,10 @@ The solution implements re-ranking that combines the rankings of multiple search
 # How to start solution locally
 All components, including LLM, can be run locally without additional configuration to test the solution.
 
-> Please note that the local deployment uses Google's Gemma:2b model, which shows mediocre results in generating German responses.
+> Please note that the local deployment uses OLLAMA LLM (Local Language Model :-), which shows mediocre results in generating German responses.
 
 ## Start solution components as Docker containers
-- To start the solution, run the following command. Please be informed that the operation can take 20 minutes or even more to get everything running.
+- To start the solution, run the following command. Please be informed that the operation can take 30 minutes or even more to get everything running.
     ```bash
     docker compose -f docker-compose.yml -f docker-compose.test.yml -p smart-mail up --build
     ```
@@ -171,15 +171,10 @@ All components, including LLM, can be run locally without additional configurati
 ### Enter questions
 - To test, input any question from lists below to the Email client. In the picture below, you can see an example question from the list of AGB-related questions.
 ![Input question](images/input_question.png)
-- Be patient and wait for the green message indicating that the answer has been processed. It can take 2-3 minutes or even more because the solution uses local resources to process the answer. During the processing, the message "![Processing](images/in_progress.gif) Processing..." will be displayed.
+- Be patient and wait for the green message indicating that the answer has been processed. It can take 3-5 minutes or even more because the solution uses local resources to process the answer. During the processing, the message "![Processing](images/in_progress.gif) Processing..." will be displayed on the top right corner of the screen.
 
 #### AGB related questions
 The AGB questions are the following:
-1. Wer betreibt die Platform unter https://www.ev-digitalinvest.de und wo ist das Unternehmen eingetragen?
-1. Welche Voraussetzungen müssen Nutzer für die Registrierung auf der Plattform erfüllen?
-1. Was ist erforderlich, um das Anlegerportal zu nutzen?
-1. Welche zusätzlichen Schritte sind nach der Registrierung notwendig, um Dienstleistungen vollumfänglich in Anspruch nehmen zu können?
-1. Wie funktioniert das elektronische Postfach und wann gelten Vertragsunterlagen als zugestellt?
 1. Welche Rolle spielt EV Digital Invest AG bei der Vermittlung von Verträgen und welche Leistungen erbringt das Unternehmen nicht?
 1. Wie lange werden die Vertragsunterlagen im Postfach des Nutzers gespeichert?
 1. Unter welchen Umständen kann die Verfügbarkeit der Plattform eingeschränkt sein?

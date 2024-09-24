@@ -8,15 +8,15 @@ services:
       - ${USERPROFILE}/.aws/credentials:/root/.aws/credentials:ro
     environment:
       - USE_LOCAL_LLM=true
-      - LOCAL_LLM_URL=http://ollama-gemma2b:11434/api/generate
-      - LOCAL_LLM_MODEL_NAME=gemma:2b
+      - LOCAL_LLM_URL=http://ollama:11434/api/generate
+      - LOCAL_LLM_MODEL_NAME=marco/em_german_mistral_v01
     depends_on:
-      - ollama-gemma2b
+      - ollama
 
-  ollama-gemma2b:
+  ollama:
     build:
       context: .
-      dockerfile: Dockerfile.ollama.gemma2b
+      dockerfile: Dockerfile.ollama
     ports:
       - 11434:11434
     environment:
