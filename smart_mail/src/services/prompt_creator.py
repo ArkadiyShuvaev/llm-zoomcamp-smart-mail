@@ -37,6 +37,7 @@ class PromptCreator:
             "- Jedes Suchergebnis enthält eine \"Antwort\" auf eine \"Frage\".\n"
             "- Wenn das Suchergebnis einen Unterabschnitt \"Anweisungen zur Beantwortung\" enthält, VERWENDE diese Anweisungen.\n"
             "- Denk daran, in Deiner Antwort Links hinzuzufügen, falls im Unterabschnitt \"Anweisungen zur Beantwortung\" ein Link existiert.\n"
+            "- Sie können in Ihrer Antwort nicht erwähnen, dass Sie Ergebnisse aus der internen Wissensdatenbank verwendet haben.\n"
             "- VERWENDE keine anderen Informationen, um die Frage des Kunden zu beantworten. VERWENDE nur die Informationen aus dem Abschnitt \"Suchergebnisse\".\n"
             "- Du MUSST deine Antwort als HTML formatieren. Wenn deine Antwort eine Liste von Elementen enthält, formatierst du sie als ungeordnete Liste. \n"
             "- Falls die Frage eine mehrstufige Überlegung erfordert, solltest Du relevante Informationen aus den Suchergebnissen finden und die Antwort auf Grundlage der relevanten Informationen mit logischem Denken zusammenfassen.\n"
