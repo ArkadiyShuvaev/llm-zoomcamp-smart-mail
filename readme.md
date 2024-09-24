@@ -1,10 +1,10 @@
 - [Project Description](#project-description)
 - [The Dataset](#the-dataset)
 - [Solution Components](#solution-components)
+  - [Interface](#interface)
   - [RAG Flow](#rag-flow)
   - [Retrieval Evaluation](#retrieval-evaluation)
   - [RAG Evaluation](#rag-evaluation)
-  - [Interface](#interface)
   - [Monitoring](#monitoring)
   - [Containerization](#containerization)
   - [Document Re-ranking](#document-re-ranking)
@@ -33,14 +33,22 @@ The dataset is generated using publicly available content from my employer's web
 The content from these pages was converted into a set of FAQ-style questions and answers, which are stored in the [FAQs](mage/data/faqs) folder.
 
 # Solution Components
+## Interface
+Two applications have been developed to verify the concept:
+  - **Email Client**: Simulates sending emails to the system.
+  - **Customer Support Client**: Allows the support team to review generated responses.
+
+Below are sample interfaces:
+![Email Client](./images/email_client.png)
+![Customer Support Client](./images/answer_review.png)
 
 ## RAG Flow
 The Retrieval-Augmented Generation (RAG) flow consists of two components: `retrieval` and `generation`, as shown in the diagram below.
 
 ```mermaid
 sequenceDiagram
-    actor User
-    User-->>App: 📧 User question
+    actor User as User
+    User-->>App: 📧 User question (using Email Client App)
     rect rgb(240, 240, 240)
     note right of App: Retrieval phase
     App->>EmbeddingModel: User query
@@ -84,15 +92,6 @@ sequenceDiagram
 
 ## RAG Evaluation
 The RAG evaluation has not been conducted yet.
-
-## Interface
-Two applications have been developed to verify the concept:
-  - **Email Client**: Simulates sending emails to the system.
-  - **Customer Support Client**: Allows the support team to review generated responses.
-
-Below are sample interfaces:
-![Email Client](./images/email_client.png)
-![Customer Support Client](./images/answer_review.png)
 
 ## Monitoring
 The system logs key metrics into a PostgreSQL database, including:
