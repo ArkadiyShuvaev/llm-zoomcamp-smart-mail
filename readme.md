@@ -1,199 +1,184 @@
-- [Project description](#project-description)
-- [The dataset](#the-dataset)
-- [Solution components](#solution-components)
-  - [RAG flow](#rag-flow)
-  - [Retrieval evaluation](#retrieval-evaluation)
-  - [RAG evaluation](#rag-evaluation)
+- [Project Description](#project-description)
+- [The Dataset](#the-dataset)
+- [Solution Components](#solution-components)
+  - [RAG Flow](#rag-flow)
+  - [Retrieval Evaluation](#retrieval-evaluation)
+  - [RAG Evaluation](#rag-evaluation)
   - [Interface](#interface)
   - [Monitoring](#monitoring)
   - [Containerization](#containerization)
-  - [Document re-ranking](#document-re-ranking)
-  - [Ingestion pipeline](#ingestion-pipeline)
-- [How to start solution locally](#how-to-start-solution-locally)
-  - [Start solution components as Docker containers](#start-solution-components-as-docker-containers)
-  - [Start the pipeline](#start-the-pipeline)
-  - [Test UI](#test-ui)
-    - [Open UI applications](#open-ui-applications)
-    - [Enter questions](#enter-questions)
-      - [Question examples](#question-examples)
-    - [Review the answers](#review-the-answers)
-  - [Clean up](#clean-up)
+  - [Document Re-ranking](#document-re-ranking)
+  - [Ingestion Pipeline](#ingestion-pipeline)
+- [How to Start the Solution Locally](#how-to-start-the-solution-locally)
+  - [Run Components as Docker Containers](#run-components-as-docker-containers)
+  - [Start the Pipeline](#start-the-pipeline)
+  - [Test the UI](#test-the-ui)
+    - [Open UI Applications](#open-ui-applications)
+    - [Input Questions](#input-questions)
+      - [Question Examples](#question-examples)
+    - [Review the Answers](#review-the-answers)
+  - [Clean Up](#clean-up)
 
+# Project Description
+The goal of this solution is to explore the concept of a system that can efficiently respond to customer emails, providing personalized and human-like replies. The system is designed to ensure that customers feel they are interacting with real people.
 
-# Project description
-The goal of this solution is to test the concept of a system that can efficiently respond to customer emails. Additionally, the system is designed to craft personalized replies, ensuring that customers feel they are interacting with real people.
+# The Dataset
+The dataset is generated using publicly available content from my employer's website as of September 2024. The following pages were used to create the dataset:
 
-# The dataset
-The dataset is created based on publicly available data from my employer's website, where I work as of September 2024.
-
-The following pages have been used to prepare the dataset:
 - https://www.ev-digitalinvest.de/anleger/faq
 - https://www.ev-digitalinvest.de/analyseprozess
 - https://www.ev-digitalinvest.de/anleger
-- https://www.ev-digitalinvest.de/analyseprozess
 - https://www.ev-digitalinvest.de/agb
 
-The pages are converted into a set of FAQ questions and answers and are stored in the [FAQs](mage/data/faqs) folder.
+The content from these pages was converted into a set of FAQ-style questions and answers, which are stored in the [FAQs](mage/data/faqs) folder.
 
-# Solution components
-## RAG flow
-- The RAG flow contains of the `retrieval` and `generation` components. Both of them are highlighted on the diagram below.
-    ```mermaid
-    sequenceDiagram
-        actor User
-        User-->>App: 📧 User question
-        rect rgb(240, 240, 240)
-        note right of App: Retrieval phase
-        App->>EmbeddingModel: User query
-        EmbeddingModel->>App: User encoded query (vector)
-        App->>KnowledgeDatabase: User encoded query with user metadata
-        KnowledgeDatabase->>App: A collection of answers
-        end
-        rect rgb(230, 230, 230)
-        note right of App: Generation phase
-        App->>LLM: Request to create answer based on the collection of answers
-        LLM->>App: An answer to the user question
-        end
-        App->>MonitoringDatabase: The user question, answer, number of tokens is used
-        actor CustomerSupportTeam as Customer Support Team
+# Solution Components
 
-        CustomerSupportTeam-->>App: Review auto-generated response with human evaluation (dislikes 👎)
-        CustomerSupportTeam-->>User: 📧 The answer to the question
-    ```
-- The files:
-    - The `retrieval` component is represented by the [retrieval_service.py](smart_mail/src/services/retrieval_service.py)
-    - The `generation` one is implemented in the [generation_service.py](smart_mail/src/services/generation_service.py)
+## RAG Flow
+The Retrieval-Augmented Generation (RAG) flow consists of two components: `retrieval` and `generation`, as shown in the diagram below.
 
-## Retrieval evaluation
-- To evaluate the [dataset](#the-dataset), ground truth dataset was generated using the notebook [02_create_ground_truth](notebook/retrieval_evaluation/02_create_ground_truth.ipynb). It includes five questions per question/answer pair from the dataset.
-- The retrieval evaluation is performed using followin notebooks:
-    - [03_evaluate_text_retrieval.ipynb](notebook/retrieval_evaluation/03_evaluate_text_retrieval.ipynb)
-    - [04_vector_question_answer_retrieval.ipynb](notebook/retrieval_evaluation/04_vector_question_answer_retrieval.ipynb)
-    - [05_evaluate_reranking.ipynb](notebook/retrieval_evaluation/05_evaluate_reranking.ipynb)
-    - [06_vector_answer_retrieval.ipynb](notebook/retrieval_evaluation/06_vector_answer_retrieval.ipynb)
+```mermaid
+sequenceDiagram
+    actor User
+    User-->>App: 📧 User question
+    rect rgb(240, 240, 240)
+    note right of App: Retrieval phase
+    App->>EmbeddingModel: User query
+    EmbeddingModel->>App: Encoded query (vector)
+    App->>KnowledgeDatabase: Encoded query + metadata
+    KnowledgeDatabase->>App: Collection of answers
+    end
+    rect rgb(230, 230, 230)
+    note right of App: Generation phase
+    App->>LLM: Generate answer based on retrieved answers
+    LLM->>App: Response to user query
+    end
+    App->>MonitoringDatabase: Logs question, answer, token usage
+    actor CustomerSupportTeam as Customer Support Team
 
-- The following metrics have been used to evaluate the retrieval performance:
-    - Mean Reciprocal Rank (MRR): This metric measures how well the system ranks the correct answer. It calculates the reciprocal of the rank at which the first relevant document is retrieved. A higher MRR indicates better performance, with the system ranking relevant answers closer to the top.
-    - Recall at k: This metric measures the proportion of relevant documents retrieved in the top k results. For example, Recall@5 indicates how many of the relevant documents are found in the top 5 retrieved results. A higher Recall@k suggests that the system is effectively retrieving relevant information within the top k results.
-- Four models and four methods have been tested. The graphical representation is done using the file  [20_analytics.ipynb](notebook/retrieval_evaluation/20_analytics.ipynb).
-- The output of the evaluation is shown below:
-    ![evaluation_metrics_by_method_and_model](images/evaluation_metrics_by_method_and_model.png)
+    CustomerSupportTeam-->>App: Human review of auto-generated answer (dislikes 👎)
+    CustomerSupportTeam-->>User: 📧 Responds to user
+```
 
-- Based on the results, the model `distiluse-base-multilingual-cased-v1` should be used to create embeddings for the question/answer pairs to perform the most effective retrieval. This model consistently showed the highest MRR and Recall@k scores across different retrieval methods.
+- Components:
+  - The `retrieval` service is implemented in [retrieval_service.py](smart_mail/src/services/retrieval_service.py)
+  - The `generation` service is handled by [generation_service.py](smart_mail/src/services/generation_service.py)
 
-## RAG evaluation
-The RAG evaluation has not been performed yet.
+## Retrieval Evaluation
+- A ground truth dataset was generated using the notebook [02_create_ground_truth.ipynb](notebook/retrieval_evaluation/02_create_ground_truth.ipynb), containing five questions per Q&A pair from the original dataset.
+- Retrieval evaluation was performed using the following notebooks:
+  - [03_evaluate_text_retrieval.ipynb](notebook/retrieval_evaluation/03_evaluate_text_retrieval.ipynb)
+  - [04_vector_question_answer_retrieval.ipynb](notebook/retrieval_evaluation/04_vector_question_answer_retrieval.ipynb)
+  - [05_evaluate_reranking.ipynb](notebook/retrieval_evaluation/05_evaluate_reranking.ipynb)
+  - [06_vector_answer_retrieval.ipynb](notebook/retrieval_evaluation/06_vector_answer_retrieval.ipynb)
+
+- The evaluation metrics used are:
+  - **Mean Reciprocal Rank (MRR)**: Measures how well the system ranks the correct answer. A higher MRR indicates better performance.
+  - **Recall@k**: Measures how many relevant documents are retrieved in the top k results. Higher Recall@k means better performance.
+
+- Three models and four retrieval methods were tested, with results visualized in [20_analytics.ipynb](notebook/retrieval_evaluation/20_analytics.ipynb). The evaluation results indicated that `distiluse-base-multilingual-cased-v1` performed the best and should be used for creating embeddings for the Q&A pairs.
+
+![Evaluation Metrics by Method and Model](images/evaluation_metrics_by_method_and_model.png)
+
+## RAG Evaluation
+The RAG evaluation has not been conducted yet.
 
 ## Interface
-- To verify the concept, two applications have been created:
-    - Email client
-    - Customer support client
-- The email client simulates sending emails to the system, while the customer support client application allows the customer support team to review the generated answers.
-- The interface of the email client is shown below:
-![Email Client](./images/email_client.png)
+Two applications have been developed to verify the concept:
+  - **Email Client**: Simulates sending emails to the system.
+  - **Customer Support Client**: Allows the support team to review generated responses.
 
-- To review the personalized answer, the customer support team can use another UI to access the list of answers to review them:
+Below are sample interfaces:
+![Email Client](./images/email_client.png)
 ![Customer Support Client](./images/answer_review.png)
 
 ## Monitoring
-- The solution includes logging to PostgreSQL and preserves the following metrics:
+The system logs key metrics into a PostgreSQL database, including:
+  - **Number of input and output tokens**: Tracks token usage for both the input prompt and the generated response.
+  - **LLM Processing Time**: Measures the time taken by the LLM to generate a response.
+  - **Total Processing Time**: Includes the LLM processing time and any additional processing overhead.
+  - **Processing Status**: Tracks if a request is pending, processed, or encountered an error.
 
-  - **Number of input and output tokens**:
-    - `input_text_token_count`: The count of tokens in the prompt sent to the LLM. Used for monitoring input complexity and LLM costs.
-    - `token_count`: The count of tokens in the response generated by the LLM.
+These metrics help monitor the system's performance and detect any processing issues.
 
-  - **LLM processing time**:
-    - `llm_response_time_ms`: Time taken (in milliseconds) by the LLM to generate the response. Useful for performance tracking.
-
-  - **Total processing time**:
-    - `total_processing_time_ms`: The total time spent processing the record, including the LLM response time.
-
-  - **Processing status**:
-    - `processing_status`: Tracks the status of the processing, e.g., 'pending', 'processed', or 'error'.
-
-- These metrics are essential for monitoring the performance and efficiency of the system, as well as for identifying and troubleshooting any issues that may arise during the processing of customer emails.
-- A general overview of the data table is shown in the picture below.
-  ![Database overview](images/monitoring_database_overview.png)
+![Database Overview](images/monitoring_database_overview.png)
 
 ## Containerization
-The solution is fully containerized. To get mode details on how to start all components, please refer to the section [Start solution components as Docker containers](#start-solution-components-as-docker-containers).
+The entire solution is containerized. Refer to [Run Components as Docker Containers](#run-components-as-docker-containers) for instructions on how to start the system locally.
 
-##  Document re-ranking
-The solution implements re-ranking that combines the rankings of multiple search engines or recommendation systems into a single ranking. See the implementation in the file [reciprocal_rank_fusion_service.py](smart_mail/src/services/reciprocal_rank_fusion_service.py).
+## Document Re-ranking
+The solution implements document re-ranking, combining rankings from multiple retrieval systems into a final ranking. The implementation can be found in [reciprocal_rank_fusion_service.py](smart_mail/src/services/reciprocal_rank_fusion_service.py).
 
+Tests for the re-ranking service are located in the [reciprocal_rank_fusion_service_test.py](smart_mail\tests\services\reciprocal_rank_fusion_service_test.py) file.
 
-## Ingestion pipeline
-- The ingestion pipeline is powered by [Mage.AI](https://mage.ai). The high-level diagram of the ingestion process is depicted below.
+## Ingestion Pipeline
+- The ingestion pipeline is powered by [Mage.AI](https://mage.ai). Below is the high-level overview of the process:
 
-    ```mermaid
-    sequenceDiagram
-        actor CustomerSupportTeam as Customer Support Team
-        note right of CustomerSupportTeam: Building a knowledge base
-        CustomerSupportTeam-->>FileStorage: Prepare a list of questions and answers to them
-        participant IngestionPipeline as Ingestion Pipeline (Mage.ai)
-        IngestionPipeline->>FileStorage: Get a list of questions
-        FileStorage->>IngestionPipeline: CSV (or PDF) files
-        IngestionPipeline->>EmbeddingModel: Create embeddings
-        EmbeddingModel->>IngestionPipeline: Embeddings (vectors)
-        IngestionPipeline->>KnowledgeDatabase: Index embeddings
-    ```
-- All pipeline files are placed in the [mage/zoomcamp-smart-mail/smart-mail](mage/zoomcamp-smart-mail/smart-mail) folder.
-- The overview of the pipeline steps is shown in the picture below:
-    ![Pipeline overview](images/mage/pipeline_steps_overview.png)
+  ```mermaid
+  sequenceDiagram
+      actor CustomerSupportTeam as Customer Support Team
+      note right of CustomerSupportTeam: Building a knowledge base
+      CustomerSupportTeam-->>FileStorage: Prepare Q&A list
+      participant IngestionPipeline as Ingestion Pipeline (Mage.ai)
+      IngestionPipeline->>FileStorage: Retrieve Q&A list
+      FileStorage->>IngestionPipeline: CSV (or PDF) files
+      IngestionPipeline->>EmbeddingModel: Generate embeddings
+      EmbeddingModel->>IngestionPipeline: Embeddings (vectors)
+      IngestionPipeline->>KnowledgeDatabase: Index embeddings
+  ```
 
-# How to start solution locally
-The local execution is the simplest way to test the components because an LLM model from AWS is used to generate answers.
+- The pipeline files are located in the [mage/zoomcamp-smart-mail/smart-mail](mage/zoomcamp-smart-mail/smart-mail) folder.
 
-Not everybody has access to the AWS model, so the local execution is the best way to test the solution. All components, including LLM, can be run locally without any additional configuration.
+- The overview of the pipeline steps represented in the picture below:
+![Pipeline Overview](images/mage/pipeline_steps_overview.png)
 
-> Please note that the local deployment uses OLLAMA LLM (Local Language Model :-), which shows mediocre results in generating German responses.
+# How to Start the Solution Locally
+Local execution is the simplest way to test the solution components. It uses a local LLM model and does not require access to AWS services. However, note that the local LLM shows average performance for generating German responses.
 
-## Start solution components as Docker containers
-- To start the solution, run the following command. Please be informed that the operation can take 30-40 minutes or even more to get everything running.
-    ```bash
-    docker compose -f docker-compose.yml -f docker-compose.test.yml -p smart-mail up --build
-    ```
+## Run Components as Docker Containers
+To start the solution, run the following command (it may take 30-40 minutes or more):
 
-- Wait for the solution to start. The logs will be displayed in the terminal.
+```bash
+docker compose -f docker-compose.yml -f docker-compose.test.yml -p smart-mail up --build
+```
 
-## Start the pipeline
-- All components are preinstalled in the Docker container. You do not need to install anything.
-- Open the browser and go to the page http://localhost:6789/pipelines/ingestion_evdi/triggers
-![Pipeline overview](images/mage/pipeline_overview.png)
-- Click on the `Run@once` button to start the pipeline with default settings.
-![Start pipeline](images/mage/start_pipeline_manually.png)
-- Wait for 5-10 minutes for the pipeline to finish. The pipeline status should be `completed`.
+Wait for the solution to initialize. Logs will be displayed in the terminal.
 
-## Test UI
-### Open UI applications
-- To open the email client, go to the page http://localhost:8501/ and chose the `email_client.py` option on the left side bar.
-![Email client](images/email_client_side_bar_selection.png)
+## Start the Pipeline
+No additional setup is required. To run the ingestion pipeline, open the browser and navigate to:
 
-    > Please note that the first start can take time to download the sentence-transformers model.
+http://localhost:6789/pipelines/ingestion_evdi/triggers
 
-### Enter questions
-- To test, input any question from lists below to the Email client. In the picture below, you can see an example question. Please use questions from the [Question examples](#question-examples) below.
-![Input question](images/input_question.png)
-- Be patient and wait for the green message indicating that the answer has been processed. It can take 5-10 minutes or even more because the solution uses the local LLM to generate the answer. During the processing, the message "![Processing](images/in_progress.gif) Processing..." will be displayed on the top right corner of the screen.
+Click the `Run@once` button. The pipeline will take 5-10 minutes to complete.
 
-#### Question examples
+![Start Pipeline](images/mage/start_pipeline_manually.png)
+
+## Test the UI
+### Open UI Applications
+To open the Email Client, visit http://localhost:8501/ and select the `email_client.py` option from the sidebar.
+
+![Email Client Selection](images/email_client_side_bar_selection.png)
+
+Please note that the first start can take time to download the sentence-transformers model.
+
+### Input Questions
+Test the system by entering questions from the [Question Examples](#question-examples) section.
+
+![Input Question](images/input_question.png)
+
+#### Question Examples
 1. Wie kann ich das Risiko einer Investition in Immobilien einschätzen?
 1. Wer ist für die finale Projekteinschätzung verantwortlich?
 1. Wie lange dauert es, bis ich mein Geld zurückbekommen kann, wenn ich es brauche?
-1. Wie beginnt der Prozess der Geldanlage?
-
-1. Gibt es eine Möglichkeit, schnell an mein investiertes Geld zu kommen?
 1. Welche Schritte muss ich unternehmen, um mein Geld zügig zurückzuerhalten, falls notwendig?
-### Review the answers
-- To review the answers, open the page http://localhost:8501/ and chose the `customer_support_client.py` option on the left side bar:
-![Applications](images/customer_support_app_choise.png)
-- Review the answers by providing an Answer Id from the table and clicking the `Read Answer` button.
-![Read Answer](images/read_answer.png)
-- Test the application by providing a feedback on the quality of the generated answer.
-- Reload the page and check the review. The review should be displayed in the table.
+### Review the Answers
+To review answers, open http://localhost:8501/ and select `customer_support_client.py` from the sidebar. Input the Answer ID and click `Read Answer`.
 
-## Clean up
-After you finish your review, clean up the solution's containers by running the following command:
-    ```bash
-    docker compose -p smart-mail down
-    ```
+![Read Answer](images/read_answer.png)
+
+## Clean Up
+After testing, clean up the Docker containers by running:
+
+```bash
+docker compose -p smart-mail down
+```
