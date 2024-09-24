@@ -130,7 +130,8 @@ Tests for the re-ranking service are located in the [reciprocal_rank_fusion_serv
 - The pipeline files are located in the [mage/zoomcamp-smart-mail/smart-mail](mage/zoomcamp-smart-mail/smart-mail) folder.
 
 - The overview of the pipeline steps represented in the picture below:
-  ![Pipeline Overview](images/mage/pipeline_steps_overview.png)
+
+<img src="images/mage/pipeline_steps_overview.png" width="250">
 
 # How to Start the Solution Locally
 Local execution is the simplest way to test the solution components. It uses a local LLM model and does not require access to AWS services. However, note that the local LLM shows average performance for generating German responses.
