@@ -62,7 +62,9 @@ sequenceDiagram
 
 - Components:
   - The `retrieval` service is implemented in [retrieval_service.py](smart_mail/src/services/retrieval_service.py)
-  - The `generation` service is handled by [generation_service.py](smart_mail/src/services/generation_service.py)
+  - The `generation` service is represented by two services:
+    - For the local (offline) execution the service [ollama_generation_service.py](smart_mail/src/services/generation/ollama_generation_service.py) is used
+    - For the online execution the service [smart_mail\src\services\generation\aws_generation_service.py](smart_mail/src/services/generation/aws_generation_service.py) is used
 
 ## Retrieval Evaluation
 - A ground truth dataset was generated using the notebook [02_create_ground_truth.ipynb](notebook/retrieval_evaluation/02_create_ground_truth.ipynb), containing five questions per Q&A pair from the original dataset.
@@ -109,7 +111,7 @@ The entire solution is containerized. Refer to [Run Components as Docker Contain
 ## Document Re-ranking
 The solution implements document re-ranking, combining rankings from multiple retrieval systems into a final ranking. The implementation can be found in [reciprocal_rank_fusion_service.py](smart_mail/src/services/reciprocal_rank_fusion_service.py).
 
-Tests for the re-ranking service are located in the [reciprocal_rank_fusion_service_test.py](smart_mail\tests\services\reciprocal_rank_fusion_service_test.py) file.
+Tests for the re-ranking service are located in the [reciprocal_rank_fusion_service_test.py](smart_mail/tests/services/reciprocal_rank_fusion_service_test.py) file.
 
 ## Ingestion Pipeline
 - The ingestion pipeline is powered by [Mage.AI](https://mage.ai). Below is the high-level overview of the process:
@@ -165,7 +167,7 @@ To open the Email Client, visit http://localhost:8501/ and select the `email_cli
 Please note that the first start can take time to download the sentence-transformers model.
 
 ### Input Questions
-Test the system by entering questions from the [Question Examples](#question-examples) section.
+Test the system by entering questions from the [Question Examples](#question-examples) section below.
 
 ![Input Question](images/input_question.png)
 
