@@ -15,8 +15,7 @@
   - [Test UI](#test-ui)
     - [Open UI applications](#open-ui-applications)
     - [Enter questions](#enter-questions)
-      - [AGB related questions](#agb-related-questions)
-      - [Miscellaneous questions:](#miscellaneous-questions)
+      - [Question examples](#question-examples)
     - [Review the answers](#review-the-answers)
   - [Clean up](#clean-up)
 
@@ -139,14 +138,18 @@ The solution implements re-ranking that combines the rankings of multiple search
         IngestionPipeline->>KnowledgeDatabase: Index embeddings
     ```
 - All pipeline files are placed in the [mage/zoomcamp-smart-mail/smart-mail](mage/zoomcamp-smart-mail/smart-mail) folder.
+- The overview of the pipeline steps is shown in the picture below:
+    ![Pipeline overview](images/mage/pipeline_steps_overview.png)
 
 # How to start solution locally
-All components, including LLM, can be run locally without additional configuration to test the solution.
+The local execution is the simplest way to test the components because an LLM model from AWS is used to generate answers.
+
+Not everybody has access to the AWS model, so the local execution is the best way to test the solution. All components, including LLM, can be run locally without any additional configuration.
 
 > Please note that the local deployment uses OLLAMA LLM (Local Language Model :-), which shows mediocre results in generating German responses.
 
 ## Start solution components as Docker containers
-- To start the solution, run the following command. Please be informed that the operation can take 30 minutes or even more to get everything running.
+- To start the solution, run the following command. Please be informed that the operation can take 30-40 minutes or even more to get everything running.
     ```bash
     docker compose -f docker-compose.yml -f docker-compose.test.yml -p smart-mail up --build
     ```
@@ -169,22 +172,16 @@ All components, including LLM, can be run locally without additional configurati
     > Please note that the first start can take time to download the sentence-transformers model.
 
 ### Enter questions
-- To test, input any question from lists below to the Email client. In the picture below, you can see an example question from the list of AGB-related questions.
+- To test, input any question from lists below to the Email client. In the picture below, you can see an example question. Please use questions from the [Question examples](#question-examples) below.
 ![Input question](images/input_question.png)
-- Be patient and wait for the green message indicating that the answer has been processed. It can take 3-5 minutes or even more because the solution uses local resources to process the answer. During the processing, the message "![Processing](images/in_progress.gif) Processing..." will be displayed on the top right corner of the screen.
+- Be patient and wait for the green message indicating that the answer has been processed. It can take 5-10 minutes or even more because the solution uses the local LLM to generate the answer. During the processing, the message "![Processing](images/in_progress.gif) Processing..." will be displayed on the top right corner of the screen.
 
-#### AGB related questions
-The AGB questions are the following:
-1. Welche Rolle spielt EV Digital Invest AG bei der Vermittlung von Verträgen und welche Leistungen erbringt das Unternehmen nicht?
-1. Wie lange werden die Vertragsunterlagen im Postfach des Nutzers gespeichert?
-1. Unter welchen Umständen kann die Verfügbarkeit der Plattform eingeschränkt sein?
-1. Wie kann das Nutzungsverhältnis gekündigt werden und welche Auswirkungen hat dies auf bestehende Verträge?
-1. Welches Recht gilt für die Nutzungsbedingungen und wo ist der Gerichtsstand für Streitigkeiten?
-#### Miscellaneous questions:
+#### Question examples
+1. Wie kann ich das Risiko einer Investition in Immobilien einschätzen?
 1. Wer ist für die finale Projekteinschätzung verantwortlich?
-1. Ich interessiere mich für Politik und meine Nachbarn fragen mich oft nach meiner Meinung zu diesem oder jenem politischen Thema. Bin ich eine politisch exponierte Person (PEP)?
-1. Kann ich ohne Risiko in Ihre Projekte investieren?
 1. Wie lange dauert es, bis ich mein Geld zurückbekommen kann, wenn ich es brauche?
+1. Wie beginnt der Prozess der Geldanlage?
+
 1. Gibt es eine Möglichkeit, schnell an mein investiertes Geld zu kommen?
 1. Welche Schritte muss ich unternehmen, um mein Geld zügig zurückzuerhalten, falls notwendig?
 ### Review the answers
