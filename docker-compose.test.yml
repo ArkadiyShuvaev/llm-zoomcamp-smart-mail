@@ -9,7 +9,7 @@ services:
     environment:
       - USE_LOCAL_LLM=true
       - LOCAL_LLM_URL=http://ollama:11434/api/generate
-      - LOCAL_LLM_MODEL_NAME=marco/em_german_mistral_v01
+      - LOCAL_LLM_MODEL_NAME=phi3.5:3.8b
     depends_on:
       - ollama
 

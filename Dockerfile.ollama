@@ -2,7 +2,7 @@ FROM ollama/ollama:latest as builder
 
 RUN ollama serve & \
     sleep 10 && \
-    ollama pull marco/em_german_mistral_v01
+    ollama pull phi3.5:3.8b
 
 FROM ollama/ollama:latest
 
