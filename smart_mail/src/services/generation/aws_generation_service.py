@@ -18,7 +18,7 @@ class AwsGenerationService(GenerationService):
         get_answer(prompt: str) -> GenerationResult:
             Generates a text response based on the given prompt using the AWS Bedrock Runtime.
     """
-    
+
     def __init__(self, bedrock_runtime_client: BedrockRuntimeClient) -> None:
         self.bedrock_runtime_client = bedrock_runtime_client
 

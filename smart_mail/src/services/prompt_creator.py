@@ -5,6 +5,18 @@ from services.search_result import SearchResult
 
 class PromptCreator:
     def create(self, question: str, documents: List[SearchResult]) -> str:
+        """
+        Create a prompt for answering a customer's question.
+
+        Args:
+            question (str): The customer's question.
+            documents (List[SearchResult]): The search results from the internal database.
+
+        Returns:
+            str: The generated prompt.
+
+        """
+
         general_instructions = self._get_general_instructions()
         model_instructions = self._get_model_instructions()
         question = self._get_question(question)

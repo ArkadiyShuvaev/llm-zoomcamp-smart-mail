@@ -12,6 +12,10 @@ from services.reciprocal_rank_fusion_service import ReciprocalRankFusionService
 
 
 class EmailHandler:
+    """
+    Handles incoming emails and performs various operations on them.
+    """
+
     def __init__(
         self,
         retrieval_service: RetrievalService,

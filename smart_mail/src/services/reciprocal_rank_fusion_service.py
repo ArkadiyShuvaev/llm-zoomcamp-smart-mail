@@ -19,7 +19,7 @@ class ReciprocalRankFusionService:
 
         Parameters
         ----------
-        retrieval_result : SearchResult
+        retrieval_result : RetrievalResult
             The search result to be re-ranked.
 
         Returns

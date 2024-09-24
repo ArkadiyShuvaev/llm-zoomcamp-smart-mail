@@ -71,8 +71,8 @@ sequenceDiagram
 - Components:
   - The `retrieval` service is implemented in [retrieval_service.py](smart_mail/src/services/retrieval_service.py)
   - The `generation` service is represented by two services:
-    - For the local (offline) execution the service [ollama_generation_service.py](smart_mail/src/services/generation/ollama_generation_service.py) is used
-    - For the online execution the service [smart_mail\src\services\generation\aws_generation_service.py](smart_mail/src/services/generation/aws_generation_service.py) is used
+    - For the local (offline) execution the service [ollama_generation_service.py](smart_mail/src/services/generation/ollama_generation_service.py) is used.
+    - For the online execution the service [smart_mail\src\services\generation\aws_generation_service.py](smart_mail/src/services/generation/aws_generation_service.py) is used.
 
 ## Retrieval Evaluation
 - A ground truth dataset was generated using the notebook [02_create_ground_truth.ipynb](notebook/retrieval_evaluation/02_create_ground_truth.ipynb), containing five questions per Q&A pair from the original dataset.

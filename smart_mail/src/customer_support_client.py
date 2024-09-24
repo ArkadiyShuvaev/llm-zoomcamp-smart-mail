@@ -61,6 +61,15 @@ def set_dislike(answer_id: int, feedback_value: str):
 
 
 def display_answer_by_id(answer_id: int):
+    """
+    Display the answer with the given ID.
+
+    Parameters:
+    - answer_id (int): The ID of the answer to display.
+
+    Returns:
+    None
+    """
     answer: AnswerModel | None = database_service.get_answer_by_id(answer_id)
 
     with st.container():
