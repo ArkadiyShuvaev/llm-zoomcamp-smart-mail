@@ -22,6 +22,7 @@
     - [Clean Up](#clean-up)
   - [Execution with online LLM](#execution-with-online-llm)
     - [Setup AWS Environment](#setup-aws-environment)
+    - [Start Dependencies](#start-dependencies)
     - [Install Python packages](#install-python-packages)
     - [Start the Solution](#start-the-solution)
     - [Clean Up](#clean-up-1)
@@ -87,14 +88,14 @@ sequenceDiagram
     actor CustomerSupportTeam as Customer Support Team
 
     CustomerSupportTeam-->>App: Human review of auto-generated answer (dislikes 👎)
-    CustomerSupportTeam-->>User: 📧 Responds to user
+    CustomerSupportTeam-->>User: 📧 Responds to user (copy-paste from the system to Outlook)
 ```
 
 - Components:
   - The `retrieval` service is implemented in [retrieval_service.py](smart_mail/src/services/retrieval_service.py)
   - The `generation` service is represented by two services:
     - For the local (offline) execution the service [ollama_generation_service.py](smart_mail/src/services/generation/ollama_generation_service.py) is used.
-    - For the online execution the service [smart_mail\src\services\generation\aws_generation_service.py](smart_mail/src/services/generation/aws_generation_service.py) is used.
+    - For the online execution the service [aws_generation_service.py](smart_mail/src/services/generation/aws_generation_service.py) is used.
 
 ## Retrieval Evaluation
 - A ground truth dataset was generated using the notebook [02_create_ground_truth.ipynb](notebook/retrieval_evaluation/02_create_ground_truth.ipynb), containing five questions per Q&A pair from the original dataset.
@@ -158,7 +159,7 @@ Tests for the re-ranking service are located in the [reciprocal_rank_fusion_serv
 
 
 # How to Start the Solution
-The solution can be executed in two ways:
+The solution can be launched in two ways:
 1. **Execution with local LLM**: The simplest way to test the solution components. It uses a local OLLAMA model and does not require access to external services and API keys. Please note, the local LLM shows average or even _poor_ performance and quality for generating German responses. To achieve better results, use the next option.
 
 1. **Execution with online LLM**: The recommended way to test the solution. It uses the AWS LLM service and requires an AWS account and API keys.
@@ -222,6 +223,14 @@ It is the recommended way to test the solution. This requires an AWS account and
 1.  Configure the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html. Name your AWS CLI profile `private` or change the environment variable `AWS_CONFIGURATION_PROFILE_NAME` in the file [.env.dev](smart_mail/.env.dev).
 1. Follow the instructions of the article [Getting started with Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html) to configure access to AWS LLM models.
 
+### Start Dependencies
+1. Run the following command to start the required services from the root directory of the repository:
+    ```bash
+    docker compose -f docker-compose.yml -p smart-mail-online-llm up --build
+    ```
+1. Wait for the solution to initialize. Logs will be displayed in the terminal.
+1. Execute the ingestion pipeline as described in the [Start the Pipeline](#start-the-pipeline) section.
+
 ### Install Python packages
 1. Go to the directory `smart_mail`.
 1. Install required Python packages:
@@ -230,11 +239,6 @@ It is the recommended way to test the solution. This requires an AWS account and
     ```
 
 ### Start the Solution
-1. Run the following command to start the required services:
-    ```bash
-    docker compose -f docker-compose.yml -p smart-mail-online-llm up --build
-    ```
-1. Execute the ingestion pipeline as described in the [Start the Pipeline](#start-the-pipeline) section.
 1. Read the .env.dev file and exports all the environment variables defined in it to the current shell session:
     ```bash
     export $(grep -v '^#' .env.dev | xargs)
@@ -244,7 +248,6 @@ It is the recommended way to test the solution. This requires an AWS account and
     export POSTGRES_HOST=localhost && streamlit run ./src/streamlit_runner.py ./src
     ```
 1. Open the Email Client and Customer Support Client as described in the [Execution with local LLM](#test-the-ui) section.
-
 
 ### Clean Up
 After testing, clean up the Docker containers by running:
