@@ -99,7 +99,14 @@ sequenceDiagram
 
 ## Retrieval Evaluation
 - A ground truth dataset was generated using the notebook [02_create_ground_truth.ipynb](notebook/retrieval_evaluation/02_create_ground_truth.ipynb), containing five questions per Q&A pair from the original dataset.
-- Retrieval evaluation was performed using the following notebooks:
+
+- Four retrieval methods were tested with three different models:
+  - text retrieval
+  - vector retrieval for the pair of fields question/answer
+  - re-ranking against a set of vector-question-answer-retrieval and text retrieval
+  - vector retrieval for the answer field
+
+- Retrieval evaluation was performed using the following notebooks accordingly:
   - [03_evaluate_text_retrieval.ipynb](notebook/retrieval_evaluation/03_evaluate_text_retrieval.ipynb)
   - [04_vector_question_answer_retrieval.ipynb](notebook/retrieval_evaluation/04_vector_question_answer_retrieval.ipynb)
   - [05_evaluate_reranking.ipynb](notebook/retrieval_evaluation/05_evaluate_reranking.ipynb)
@@ -109,9 +116,13 @@ sequenceDiagram
   - **Mean Reciprocal Rank (MRR)**: Measures how well the system ranks the correct answer. A higher MRR indicates better performance.
   - **Recall@k**: Measures how many relevant documents are retrieved in the top k results. Higher Recall@k means better performance.
 
-- Three models and four retrieval methods were tested, with results visualized in [20_analytics.ipynb](notebook/retrieval_evaluation/20_analytics.ipynb). The evaluation results indicated that `distiluse-base-multilingual-cased-v1` performed the best and should be used for creating embeddings for the Q&A pairs.
+- Data visualization was performed in the notebook [20_analytics.ipynb](notebook/retrieval_evaluation/20_analytics.ipynb).
 
+- The evaluation results are represented in the picture below:
 ![Evaluation Metrics by Method and Model](images/evaluation_metrics_by_method_and_model.png)
+- Conclusion:
+  - The embedding model `distiluse-base-multilingual-cased-v1` performed the best results for the given dataset in German.
+  - Re-ranking with top 5 retrieval results should be used.
 
 ## RAG Evaluation
 The RAG evaluation has not been conducted yet.
