@@ -1,5 +1,6 @@
 - [Project Description](#project-description)
 - [The Dataset](#the-dataset)
+- [Structure of the Repository](#structure-of-the-repository)
 - [Solution Components](#solution-components)
   - [Interface](#interface)
   - [RAG Flow](#rag-flow)
@@ -9,21 +10,27 @@
   - [Containerization](#containerization)
   - [Document Re-ranking](#document-re-ranking)
   - [Ingestion Pipeline](#ingestion-pipeline)
-- [How to Start the Solution Locally](#how-to-start-the-solution-locally)
-  - [Run Components as Docker Containers](#run-components-as-docker-containers)
-  - [Start the Pipeline](#start-the-pipeline)
-  - [Test the UI](#test-the-ui)
-    - [Open UI Applications](#open-ui-applications)
-    - [Input Questions](#input-questions)
-      - [Question Examples](#question-examples)
-    - [Review the Answers](#review-the-answers)
-  - [Clean Up](#clean-up)
+- [How to Start the Solution](#how-to-start-the-solution)
+  - [Execution with local LLM](#execution-with-local-llm)
+    - [Run Components as Docker Containers](#run-components-as-docker-containers)
+    - [Start the Pipeline](#start-the-pipeline)
+    - [Test the UI](#test-the-ui)
+      - [Open UI Applications](#open-ui-applications)
+      - [Input Questions](#input-questions)
+        - [Question Examples](#question-examples)
+      - [Review the Answers](#review-the-answers)
+    - [Clean Up](#clean-up)
+  - [Execution with online LLM](#execution-with-online-llm)
+    - [Setup AWS Environment](#setup-aws-environment)
+    - [Install Python packages](#install-python-packages)
+    - [Start the Solution](#start-the-solution)
+    - [Clean Up](#clean-up-1)
 
 # Project Description
 The goal of this solution is to explore the concept of a system that can efficiently respond to customer emails, providing personalized and human-like replies. The system is designed to ensure that customers feel they are interacting with real people.
 
 # The Dataset
-The dataset is generated using publicly available content from my employer's website as of September 2024. The following pages were used to create the dataset:
+The dataset is generated using publicly available content in German from my employer's website as of September 2024. The following pages were used to create the dataset:
 
 - https://www.ev-digitalinvest.de/anleger/faq
 - https://www.ev-digitalinvest.de/analyseprozess
@@ -31,6 +38,21 @@ The dataset is generated using publicly available content from my employer's web
 - https://www.ev-digitalinvest.de/agb
 
 The content from these pages was converted into a set of FAQ-style questions and answers, which are stored in the [FAQs](mage/data/faqs) folder.
+
+# Structure of the Repository
+The repository includes following folders:
+- **.devcontainer**: includes the [development container](https://code.visualstudio.com/docs/devcontainers/containers) configuration (optional).
+- **images**: includes documentation images.
+- **mage**: includes the Mage.AI pipeline files:
+  - **data**: includes the dataset for the pipeline.
+  - **zoomcamp-smart-mail**: includes the pipeline files.
+- **notebook**: includes Jupyter notebooks for evaluation.
+- **smart_mail**: includes the source code for the solution:
+  - **src**: includes the source code for the solution, including the following files:
+    - **streamlit_runner.py**: runs the Streamlit UI applications below. See more details about applications in the section [Interface](#interface).
+    - **email_client.py**: the Email Client application. It is a composition root that initializes the Email Client application.
+    - **customer_support_client.py**: the Customer Support Client application. It is a composition root that initializes the Customer Support Client application.
+  - **tests**: includes tests for the solution.
 
 # Solution Components
 ## Interface
@@ -134,13 +156,18 @@ Tests for the re-ranking service are located in the [reciprocal_rank_fusion_serv
 
 <img src="images/mage/pipeline_steps_overview.png" width="250">
 
-# How to Start the Solution Locally
-Local execution is the simplest way to test the solution components. It uses a local LLM model and does not require access to external services and API keys.
 
-However, note that the local LLM shows average performance for generating German responses.
+# How to Start the Solution
+The solution can be executed in two ways:
+1. **Execution with local LLM**: The simplest way to test the solution components. It uses a local OLLAMA model and does not require access to external services and API keys. Please note, the local LLM shows average or even _poor_ performance and quality for generating German responses. To achieve better results, use the next option.
 
-## Run Components as Docker Containers
-To start the solution, run the following command (it may take 30-40 minutes or more):
+1. **Execution with online LLM**: The recommended way to test the solution. It uses the AWS LLM service and requires an AWS account and API keys.
+
+## Execution with local LLM
+The approach uses a local LLM model and does not require access to external services and API keys. No any extra setup is required. Everything is included in the repository.
+
+### Run Components as Docker Containers
+To start the solution, run the following command. It may take 30-40 minutes or more to download the required Docker images and initialize the system:
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.test.yml -p smart-mail up --build
@@ -148,8 +175,8 @@ docker compose -f docker-compose.yml -f docker-compose.test.yml -p smart-mail up
 
 Wait for the solution to initialize. Logs will be displayed in the terminal.
 
-## Start the Pipeline
-No additional setup is required. To run the ingestion pipeline, open the browser and navigate to:
+### Start the Pipeline
+To run the pre-configured ingestion pipeline, open the browser and navigate to:
 
 http://localhost:6789/pipelines/ingestion_evdi/triggers
 
@@ -157,32 +184,70 @@ Click the `Run@once` button. The pipeline will take 5-10 minutes to complete.
 
 ![Start Pipeline](images/mage/start_pipeline_manually.png)
 
-## Test the UI
-### Open UI Applications
+### Test the UI
+#### Open UI Applications
 To open the Email Client, visit http://localhost:8501/ and select the `email_client.py` option from the sidebar.
 
 ![Email Client Selection](images/email_client_side_bar_selection.png)
 
-Please note that the first start can take time to download the sentence-transformers model.
+Please note that the first start can take time to download the sentence-transformers model. It will be improved in the future.
 
-### Input Questions
+#### Input Questions
 Test the system by entering questions from the [Question Examples](#question-examples) section below.
 
 ![Input Question](images/input_question.png)
 
-#### Question Examples
+##### Question Examples
 1. Wie kann ich das Risiko einer Investition in Immobilien einschätzen?
 1. Wer ist für die finale Projekteinschätzung verantwortlich?
 1. Wie lange dauert es, bis ich mein Geld zurückbekommen kann, wenn ich es brauche?
 1. Welche Schritte muss ich unternehmen, um mein Geld zügig zurückzuerhalten, falls notwendig?
-### Review the Answers
+#### Review the Answers
 To review answers, open http://localhost:8501/ and select `customer_support_client.py` from the sidebar. Input the Answer ID and click `Read Answer`.
 
 ![Read Answer](images/read_answer.png)
 
-## Clean Up
+### Clean Up
 After testing, clean up the Docker containers by running:
 
 ```bash
 docker compose -p smart-mail down
 ```
+
+## Execution with online LLM
+It is the recommended way to test the solution. This requires an AWS account and API keys.
+
+### Setup AWS Environment
+1. Create an AWS account if you don't have one: https://aws.amazon.com/
+1.  Configure the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html. Name your AWS CLI profile `private` or change the environment variable `AWS_CONFIGURATION_PROFILE_NAME` in the file [.env.dev](smart_mail/.env.dev).
+1. Follow the instructions of the article [Getting started with Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html) to configure access to AWS LLM models.
+
+### Install Python packages
+1. Go to the directory `smart_mail`.
+1. Install required Python packages:
+    ```bash
+    pip install -U --user -r requirements.txt
+    ```
+
+### Start the Solution
+1. Run the following command to start the required services:
+    ```bash
+    docker compose -f docker-compose.yml -p smart-mail-online-llm up --build
+    ```
+1. Execute the ingestion pipeline as described in the [Start the Pipeline](#start-the-pipeline) section.
+1. Read the .env.dev file and exports all the environment variables defined in it to the current shell session:
+    ```bash
+    export $(grep -v '^#' .env.dev | xargs)
+    ```
+1. Run the following command to start the UI clients:
+    ```bash
+    export POSTGRES_HOST=localhost && streamlit run ./src/streamlit_runner.py ./src
+    ```
+1. Open the Email Client and Customer Support Client as described in the [Execution with local LLM](#test-the-ui) section.
+
+
+### Clean Up
+After testing, clean up the Docker containers by running:
+  ```bash
+  docker compose -p smart-mail-online-llm down
+  ```
