@@ -46,6 +46,7 @@ class EmailHandler:
         prompt = self._prompt_creator.create(body, used_results)
 
         start_llm_time = time.time()
+        # TODO: Add exception handling
         generation_result = self._generation_service.get_answer(prompt)
         end_llm_time = time.time()
         elapsed_llm_time = end_llm_time - start_llm_time
