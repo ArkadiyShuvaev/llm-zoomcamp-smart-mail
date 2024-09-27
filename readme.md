@@ -145,6 +145,8 @@ sequenceDiagram
 ## Retrieval Evaluation
 - A ground truth dataset was generated using the notebook [02_create_ground_truth.ipynb](notebook/retrieval_evaluation/02_create_ground_truth.ipynb), containing five questions per Q&A pair from the original dataset.
 
+- The generated ground truth dataset is stored in the file [ground_truth.csv](notebook/retrieval_evaluation/ground_truth.csv).
+
 - Four retrieval methods were tested with three different models:
   - text retrieval
   - vector retrieval for the pair of fields question/answer
