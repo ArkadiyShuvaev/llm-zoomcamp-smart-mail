@@ -1,6 +1,8 @@
 - [Project Description](#project-description)
 - [The Dataset](#the-dataset)
 - [Structure of the Repository](#structure-of-the-repository)
+  - [Overview of the Repository Structure](#overview-of-the-repository-structure)
+  - [Detailed Description of the Repository Structure](#detailed-description-of-the-repository-structure)
 - [Solution Components](#solution-components)
   - [Interface](#interface)
   - [RAG Flow](#rag-flow)
@@ -41,19 +43,62 @@ The dataset is generated using publicly available content in German from my empl
 The content from these pages was converted into a set of FAQ-style questions and answers, which are stored in the [FAQs](mage/data/faqs) folder.
 
 # Structure of the Repository
-The repository includes following folders:
-- **.devcontainer**: includes the [development container](https://code.visualstudio.com/docs/devcontainers/containers) configuration (optional).
-- **images**: includes documentation images.
-- **mage**: includes the Mage.AI pipeline files:
-  - **data**: includes the dataset for the pipeline.
-  - **zoomcamp-smart-mail**: includes the pipeline files.
-- **notebook**: includes Jupyter notebooks for evaluation.
-- **smart_mail**: includes the source code for the solution:
-  - **src**: includes the source code for the solution, including the following files:
-    - **streamlit_runner.py**: runs the Streamlit UI applications below. See more details about applications in the section [Interface](#interface).
-    - **email_client.py**: the Email Client application. It is a composition root that initializes the Email Client application.
-    - **customer_support_client.py**: the Customer Support Client application. It is a composition root that initializes the Customer Support Client application.
-  - **tests**: includes tests for the solution.
+## Overview of the Repository Structure
+
+The `llm-zoomcamp-smart-mail` project is organized as follows:
+
+```
+llm-zoomcamp-smart-mail/
+├─ .devcontainer/
+│  └─ (development container configurations)
+├─ images/
+│  └─ (documentation images)
+├─ mage/
+│  ├─ data/
+│  │  └─ (pipeline dataset)
+│  └─ zoomcamp-smart-mail/
+│     └─ (pipeline files)
+├─ notebook/
+│  └─ (Jupyter notebooks for evaluation)
+├─ smart_mail/
+│  ├─ src/
+│  │  ├─ streamlit_runner.py
+│  │  ├─ email_client.py
+│  │  └─ customer_support_client.py
+│  └─ tests/
+│     └─ (tests for the solution)
+├─ .gitignore
+├─ requirements.txt
+└─ README.md
+```
+
+## Detailed Description of the Repository Structure
+1. **.devcontainer/**
+   - Purpose: Provides [development container](https://code.visualstudio.com/docs/devcontainers/containers) configuration.
+   - Usage: Optional. Ensures consistent development environment across different machines.
+
+1. **images/**
+   - Purpose: Stores documentation images.
+   - Contents: Image files used in project documentation.
+
+1. **mage/**
+   - Purpose: Contains Mage.AI pipeline files for data processing.
+   - Subfolders:
+     - `data/`: Stores the dataset used by the Mage.AI pipeline.
+     - `zoomcamp-smart-mail/`: Contains specific pipeline files for smart mail processing.
+
+1. **notebook/**
+   - Purpose: Houses Jupyter notebooks for evaluation and analysis.
+   - Contents: `.ipynb` files used for data exploration, model evaluation, and result visualization.
+
+1. **smart_mail/**
+   - Purpose: Core application directory containing source code and tests.
+   - Subfolders:
+     - `src/`: Source code for the main application:
+       - `streamlit_runner.py`: Launches Streamlit UI applications. See [Interface](#interface) section for details.
+       - `email_client.py`: Implements the Email Client application (composition root).
+       - `customer_support_client.py`: Implements the Customer Support Client application (composition root).
+     - `tests/`: Contains unit tests for the service `reciprocal_rank_fusion_service.py`.
 
 # Solution Components
 ## Interface
