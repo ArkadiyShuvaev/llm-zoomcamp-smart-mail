@@ -9,7 +9,6 @@ from common.sentence_transformer_model_factory import (
 
 from services.database.database_service import DatabaseService
 from services.prompt_creator import PromptCreator
-from services.generation.aws_generation_service import AwsGenerationService
 from services.reciprocal_rank_fusion_service import ReciprocalRankFusionService
 from services.retrieval_service import RetrievalService
 
