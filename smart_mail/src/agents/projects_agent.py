@@ -1,11 +1,23 @@
 from typing import List
 import uuid
+from common.emails import get_email_without_investments
 
 from dtos.project_dto import ProjectDto
 
 
 class ProjectsAgent:
     """Agent to return a list of the projects"""
+
+    def get_projects_by_email(self, email: str) -> List[ProjectDto]:
+        if email == get_email_without_investments():
+            return [
+                ProjectDto.create(uuid.UUID("00001111-2233-4444-5566-2BE412C8D8A0"), "Fake Project to simulate an issue"),
+                ProjectDto.create(uuid.UUID("0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"), "The Five"),
+                ProjectDto.create(uuid.UUID("D1F21F84-9EEC-4D0B-A63A-BF656A28A256"), "DFI Zukunftspark Oberfranken V"),
+                ProjectDto.create(uuid.UUID("716867B4-C28C-425E-94BE-59886D853D49"), "Berliner Flair in Friedrichshain II")
+            ]
+
+        return []
 
     def get_projects(self) -> List[ProjectDto]:
         return [
