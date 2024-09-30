@@ -21,6 +21,9 @@ class RetrievalService:
         settings (Settings): Configuration settings for the retrieval service.
     """
 
+    SOURCE_FIELDS = ["category", "question", "answer", "document_id",
+                     "answer_instructions", "project_id", "project_name"]
+
     def __init__(
         self,
         es_client: Elasticsearch,
@@ -61,12 +64,18 @@ class RetrievalService:
                     }
                 },
                 "filter": {"term": {"source_system": self.settings.source_system}},
+                "should": [
+                    {"exists": {"field": "project_id"}},
+                    {"bool": {"must_not": {"exists": {"field": "project_id"}}}}
+                ],
+                "minimum_should_match": 1
             }
         }
 
         body: Dict[str, Any] = {
             "query": text_query,
-            "size": number_of_results
+            "size": number_of_results,
+            "_source": self.SOURCE_FIELDS
         }
         text_response = self.es_client.search(index=self.settings.index_name, body=body)
 
@@ -89,20 +98,18 @@ class RetrievalService:
             "num_candidates": 10000,
             "boost": 0.5,
             "filter": {"term": {"source_system": self.settings.source_system}},
+            "should": [
+                {"exists": {"field": "project_id"}},
+                {"bool": {"must_not": {"exists": {"field": "project_id"}}}}
+            ],
+            "minimum_should_match": 1
         }
 
         knn_response = self.es_client.search(
             index=self.settings.index_name,
             body={
                 "knn": knn_query,
-                "_source": [
-                    "source_system",
-                    "category",
-                    "question",
-                    "answer",
-                    "document_id",
-                    "answer_instructions",
-                ],
+                "_source": self.SOURCE_FIELDS
             },
         )
 

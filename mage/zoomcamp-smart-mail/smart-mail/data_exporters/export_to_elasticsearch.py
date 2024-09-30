@@ -43,6 +43,8 @@ def elasticsearch(data: DataFrame, *args, **kwargs):
                 document_id=dict(type="text"),
                 answer_instructions=dict(type="text"),
                 source_system=dict(type="keyword"),
+                project_id=dict(type="keyword"),
+                project_name=dict(type="text"),
                 vector_question_answer=dict(
                     type="dense_vector",
                     dims=dimensions,
