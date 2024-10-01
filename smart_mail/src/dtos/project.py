@@ -4,14 +4,14 @@ from uuid import UUID
 
 
 @dataclass
-class ProjectDto:
-    """ Represents a project data transfer object """
+class Project:
+    """ Represents a project data. """
 
     id: UUID
     name: str
 
     @classmethod
-    def create(cls, id: UUID, name: str) -> "ProjectDto":
+    def create(cls, id: UUID, name: str) -> "Project":
 
         return cls(id=id, name=name)
 

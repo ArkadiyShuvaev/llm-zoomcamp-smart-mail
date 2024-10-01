@@ -39,7 +39,8 @@ class EmailHandler:
         start_time = time.time()
         # user_metadata = UserMetadata.create(email_from)
 
-        retrieval_result = self._retrieval_service.search(body)
+        question = subject + " " + body
+        retrieval_result = self._retrieval_service.search(question=question)
 
         reranked_search_results = self.reciprocal_rank_fusion_service.rerank(retrieval_result)
         used_results = reranked_search_results[:5]
