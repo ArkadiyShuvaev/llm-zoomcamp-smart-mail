@@ -6,7 +6,7 @@ blocks:
     file_source:
       path: smart-mail/data_loaders/load_csv_files.py
   downstream_blocks:
-  - replace_null_with_empty
+  - concatenate_csv_files
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -22,21 +22,61 @@ blocks:
   color: null
   configuration:
     file_source:
-      path: smart-mail/transformers/replace_null_with_empty.py
+      path: smart-mail/data_loaders/load_project_csv_files.py
+  downstream_blocks:
+  - concatenate_csv_files
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load project csv files
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: load_project_csv_files
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_path: smart-mail/data_loaders/concatenate_csv_files.py
+    file_source:
+      path: smart-mail/data_loaders/concatenate_csv_files.py
+  downstream_blocks:
+  - replace_none_values_with_empty
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: concatenate csv files
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - load_project_csv_files
+  - load_csv_files
+  uuid: concatenate_csv_files
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_path: smart-mail/transformers/replace_none_values_with_empty.py
+    file_source:
+      path: smart-mail/transformers/replace_none_values_with_empty.py
   downstream_blocks:
   - add_document_id_column
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: replace null with empty
+  name: replace none values with empty
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: transformer
   upstream_blocks:
-  - load_csv_files
-  uuid: replace_null_with_empty
+  - concatenate_csv_files
+  uuid: replace_none_values_with_empty
 - all_upstream_blocks_executed: true
   color: null
   configuration:
@@ -54,7 +94,7 @@ blocks:
   timeout: null
   type: transformer
   upstream_blocks:
-  - replace_null_with_empty
+  - replace_none_values_with_empty
   uuid: add_document_id_column
 - all_upstream_blocks_executed: true
   color: null
