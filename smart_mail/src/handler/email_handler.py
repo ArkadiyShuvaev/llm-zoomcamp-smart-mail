@@ -3,12 +3,14 @@ import logging
 from typing import Dict, Any
 
 from common.settings import Settings
+from dtos.project import Project
 from services.database.database_service import DatabaseService
 from services.generation.generation_result import GenerationResult
 from services.generation.generation_service import GenerationService
 from services.prompt_creator import PromptCreator
 from services.retrieval_service import RetrievalService
 from services.reciprocal_rank_fusion_service import ReciprocalRankFusionService
+from services.content.content_data_preparer import ContentDataPreparer
 
 
 class EmailHandler:
@@ -23,6 +25,7 @@ class EmailHandler:
         generation_service: GenerationService,
         database_service: DatabaseService,
         reciprocal_rank_fusion_service: ReciprocalRankFusionService,
+        content_data_preparer: ContentDataPreparer,
         settings: Settings
     ) -> None:
         self._retrieval_service = retrieval_service
@@ -30,6 +33,7 @@ class EmailHandler:
         self._generation_service = generation_service
         self._database_service = database_service
         self.reciprocal_rank_fusion_service = reciprocal_rank_fusion_service
+        self._content_data_preparer = content_data_preparer
         self._settings = settings
         self._logger = logging.getLogger(__name__)
 
@@ -40,7 +44,11 @@ class EmailHandler:
         # user_metadata = UserMetadata.create(email_from)
 
         question = subject + " " + body
-        retrieval_result = self._retrieval_service.search(question=question)
+
+        extracted_project = self._content_data_preparer.extract_project(question)
+
+        search_params = self._create_search_params(question, extracted_project)
+        retrieval_result = self._retrieval_service.search(**search_params)
 
         reranked_search_results = self.reciprocal_rank_fusion_service.rerank(retrieval_result)
         used_results = reranked_search_results[:5]
@@ -59,6 +67,13 @@ class EmailHandler:
         self._logger.info(f"Created entity: {created_entity}")
 
         return str(generation_result.output_text)
+
+    def _create_search_params(self, question: str, extracted_project: Project | None) -> Dict[str, Any]:
+        search_params: Dict[str, Any] = {"question": question}
+
+        if extracted_project:
+            search_params["included_project_id"] = extracted_project.id
+        return search_params
 
     def _save_to_database(self, email_from: str, subject: str, body: str, prompt: str,
                           generation_result: GenerationResult, response_time: float, total_time: float):

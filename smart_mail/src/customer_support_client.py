@@ -12,6 +12,7 @@ from services.database.database_service import DatabaseService
 from services.prompt_creator import PromptCreator
 from services.reciprocal_rank_fusion_service import ReciprocalRankFusionService
 from services.retrieval_service import RetrievalService
+from services.content.content_data_preparer import ContentDataPreparer
 
 
 # Initialization
@@ -24,8 +25,9 @@ retrieval_service = RetrievalService(es_client, embedding_model, settings)
 generation_service = client_factory.create_generation_service()
 database_manager = client_factory.create_database_manager()
 database_service = DatabaseService(database_manager)
+content_data_preparer = ContentDataPreparer()
 email_handler = EmailHandler(
-    retrieval_service, PromptCreator(), generation_service, database_service, ReciprocalRankFusionService(), settings
+    retrieval_service, PromptCreator(), generation_service, database_service, ReciprocalRankFusionService(), content_data_preparer, settings
 )
 
 database_manager.db_init()
@@ -123,7 +125,7 @@ def display_recent_answers():
     df: pd.DataFrame = pd.DataFrame(data)
 
     # Display the table
-    st.table(df.set_index("ID"))
+    st.table(df.set_index("ID"))  # type: ignore
 
 
 # Main UI Components

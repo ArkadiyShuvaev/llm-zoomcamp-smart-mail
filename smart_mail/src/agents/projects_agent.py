@@ -8,7 +8,8 @@ from dtos.project import Project
 class ProjectsAgent:
     """Agent to return a list of the projects"""
 
-    def get_projects_by_email(self, email: str) -> List[Project]:
+    @staticmethod
+    def get_projects_by_email(email: str) -> List[Project]:
         if email == get_email_without_investments():
             return [
                 Project.create(uuid.UUID("00001111-2233-4444-5566-2BE412C8D8A0"), "Fake Project to simulate an issue"),
@@ -19,7 +20,8 @@ class ProjectsAgent:
 
         return []
 
-    def get_projects(self) -> List[Project]:
+    @staticmethod
+    def get_projects() -> List[Project]:
         return [
             Project.create(uuid.UUID("54EE27F7-BFB3-49BD-9438-2BE412C8D8A0"), "DFI Zukunftspark Oberfranken VI"),
             Project.create(uuid.UUID("716867B4-C28C-425E-94BE-59886D853D49"), "Berliner Flair in Friedrichshain II"),
