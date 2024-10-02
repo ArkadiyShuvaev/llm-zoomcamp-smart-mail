@@ -1,4 +1,5 @@
 from typing import Any, Dict, List
+from uuid import UUID
 
 from sentence_transformers import SentenceTransformer
 from common.settings import Settings
@@ -34,23 +35,32 @@ class RetrievalService:
         self.embedding_model = embedding_model
         self.settings = settings
 
-    def search(self, user_question: str, number_of_results: int = 10, vector_field_name: str = "vector_question_answer") -> RetrievalResult:
+    def search(self,
+               question: str,
+               number_of_results: int = 20,
+               vector_field_name: str = "vector_question_answer",
+               included_project_id: UUID | None = None) -> RetrievalResult:
         """
         Search for user_question in the retrieval service.
 
         Args:
-            user_question (str): The question to search for.
+            question (str): The question to search for.
             number_of_results (int, optional): The number of results to retrieve. Defaults to 10.
             vector_field_name (str, optional): The name of the field containing the vector embeddings. Defaults to "vector_question_answer".
+            included_project_id (UUID | None): A project id to filter the retrieval result. If the result does not have field 'project_id', the one is included.
 
         Returns:
             RetrievalResult: The retrieval result containing text_result_items and vector_result_items.
         """
 
-        vector_result = self._get_vector_search_result(user_question, number_of_results, vector_field_name)
-        text_result = self._get_text_retrieval_result(user_question, number_of_results)
+        number_of_results_per_type = int(number_of_results / 2)
 
-        return RetrievalResult(text_result_items=text_result, vector_result_items=vector_result)
+        vector_result = self._get_vector_search_result(question, number_of_results_per_type, vector_field_name)
+        text_result = self._get_text_retrieval_result(question, number_of_results_per_type)
+
+        filtered_vector_result = self._filter_knn_results(vector_result, included_project_id)
+
+        return RetrievalResult(text_result_items=text_result, vector_result_items=filtered_vector_result)
 
     def _get_text_retrieval_result(self, user_question: str, number_of_results: int) -> List[SearchResult]:
         text_query: Dict[str, Any] = {
@@ -96,13 +106,7 @@ class RetrievalService:
             "query_vector": query_vector,
             "k": number_of_results,
             "num_candidates": 10000,
-            "boost": 0.5,
             "filter": {"term": {"source_system": self.settings.source_system}},
-            "should": [
-                {"exists": {"field": "project_id"}},
-                {"bool": {"must_not": {"exists": {"field": "project_id"}}}}
-            ],
-            "minimum_should_match": 1
         }
 
         knn_response = self.es_client.search(
@@ -121,21 +125,24 @@ class RetrievalService:
 
         return result
 
+    def _filter_knn_results(self, knn_results: List[SearchResult], project_id: UUID | None) -> List[SearchResult]:
+        """ Filter out items which project_id is not in the list of requested ids. """
+
+        if project_id is None:
+            return knn_results
+
+        results: List[SearchResult] = []
+
+        for knn_result in knn_results:
+            if knn_result.project_id is None:
+                results.append(knn_result)
+                continue
+
+            if knn_result.project_id == project_id:
+                results.append(knn_result)
+
+        return results
+
     def _create_search_result(self, hit: Dict[str, Any]) -> SearchResult:
-        doc = hit["_source"]
-
-        answer_instructions_value = None
-        answer_instructions = doc.get("answer_instructions")
-        if answer_instructions is not None or answer_instructions != "":
-            answer_instructions_value = answer_instructions
-
-        result = SearchResult(
-            hit["_score"],
-            doc["category"],
-            doc["question"],
-            doc["answer"],
-            doc["document_id"],
-            answer_instructions_value,
-        )
-
+        result = SearchResult.create(hit["_score"], hit["_source"])
         return result
