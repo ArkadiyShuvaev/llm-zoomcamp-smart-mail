@@ -1,14 +1,12 @@
 from typing import List
-from dtos.project import Project
-
 from transformers import AutoTokenizer, AutoModel
 import torch
 from sklearn.metrics.pairwise import cosine_similarity
 
 
 class ProjectIdentifierService:
-    def __init__(self, projects: List[Project]):
-        self._projects: List[Project] = projects
+    def __init__(self, project_names: List[str]):
+        self._project_names: List[str] = project_names
         self._model_name = "sentence-transformers/distiluse-base-multilingual-cased-v1"
         self._tokenizer = AutoTokenizer.from_pretrained(self._model_name)
         self._model = AutoModel.from_pretrained(self._model_name)
@@ -18,7 +16,7 @@ class ProjectIdentifierService:
         input_embedding = self._get_embeddings(input_text)
 
         # Get embeddings for each project name
-        project_embeddings = [self._get_embeddings(project.name) for project in self._projects]
+        project_embeddings = [self._get_embeddings(project_name) for project_name in self._project_names]
 
         # Compute cosine similarities between input text and each project name
         similarities: List[float] = [cosine_similarity(input_embedding.unsqueeze(0), proj_emb.unsqueeze(0)).item() for proj_emb in project_embeddings]
@@ -29,7 +27,7 @@ class ProjectIdentifierService:
 
         # Find the most similar project name
         best_match_index = similarities.index(max_similarity_value)
-        best_project_name = self._projects[best_match_index].name
+        best_project_name = self._project_names[best_match_index]
 
         return best_project_name
 
