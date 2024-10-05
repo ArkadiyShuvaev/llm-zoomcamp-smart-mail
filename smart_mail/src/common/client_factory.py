@@ -41,7 +41,7 @@ class ClientFactory:
         session: Session = boto3.Session(profile_name=self._settings.aws_configuration_profile_name)
 
         bedrock_runtime: BedrockRuntimeClient = session.client(
-            "bedrock-runtime", region_name=self._settings.aws_region_name
+            service_name="bedrock-runtime", region_name=self._settings.aws_region_name
         )
 
         return bedrock_runtime
