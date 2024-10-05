@@ -1,5 +1,6 @@
 from typing import List
 
+from services.generation.generation_result import GenerationResult
 from services.search_result import SearchResult
 
 
@@ -53,7 +54,7 @@ class PromptCreator:
             "- VERWENDE keine anderen Informationen, um die Frage des Kunden zu beantworten. VERWENDE nur die Informationen aus dem Abschnitt \"Suchergebnisse\".\n"
             "- Du MUSST deine Antwort als HTML formatieren. Wenn deine Antwort eine Liste von Elementen enthält, formatierst du sie als ungeordnete Liste. \n"
             "- Falls die Frage eine mehrstufige Überlegung erfordert, solltest Du relevante Informationen aus den Suchergebnissen finden und die Antwort auf Grundlage der relevanten Informationen mit logischem Denken zusammenfassen.\n"
-            "- Falls die Suchergebnisse keine Informationen enthalten, die die Frage beantworten können, schreibe bitte: \"Ich konnte keine genaue Antwort auf die Frage finden\"."
+            f"- Falls die Suchergebnisse keine Informationen enthalten, die die Frage beantworten können, schreibe bitte: {GenerationResult.empty().output_text}."
         )
 
     def _get_question(self, question: str) -> str:

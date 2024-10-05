@@ -1,6 +1,6 @@
 import time
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from common.settings import Settings
 from dtos.project import Project
@@ -11,6 +11,7 @@ from services.prompt_creator import PromptCreator
 from services.retrieval_service import RetrievalService
 from services.reciprocal_rank_fusion_service import ReciprocalRankFusionService
 from services.content.content_data_preparer import ContentDataPreparer
+from services.search_result import SearchResult
 
 
 class EmailHandler:
@@ -49,14 +50,7 @@ class EmailHandler:
         retrieval_result = self._retrieval_service.search(**search_params)
 
         reranked_search_results = self.reciprocal_rank_fusion_service.rerank(retrieval_result)
-        used_results = reranked_search_results[:5]
-        prompt = self._prompt_creator.create(body, used_results)
-
-        start_llm_time = time.time()
-        # TODO: Add exception handling
-        generation_result = self._generation_service.get_answer(prompt)
-        end_llm_time = time.time()
-        elapsed_llm_time = end_llm_time - start_llm_time
+        prompt, generation_result, elapsed_llm_time = self._generate_answer(body, reranked_search_results)
 
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -65,6 +59,20 @@ class EmailHandler:
         self._logger.info(f"Created entity: {created_entity}")
 
         return str(generation_result.output_text)
+
+    def _generate_answer(self, question: str, reranked_search_results: List[SearchResult]) -> tuple[str, GenerationResult, float]:
+        if len(reranked_search_results) == 0:
+            return "", GenerationResult.empty(), 0.0
+
+        used_results = reranked_search_results[:5]
+        prompt = self._prompt_creator.create(question, used_results)
+
+        start_llm_time = time.time()
+        # TODO: Add exception handling
+        generation_result = self._generation_service.get_answer(prompt)
+        end_llm_time = time.time()
+        elapsed_llm_time = end_llm_time - start_llm_time
+        return prompt, generation_result, elapsed_llm_time
 
     def _create_search_params(self, question: str, extracted_project: Project | None) -> Dict[str, Any]:
         search_params: Dict[str, Any] = {"question": question}
