@@ -7,7 +7,8 @@ from services.content.project_identifier_service import ProjectIdentifierService
 class ContentDataPreparer:
     def __init__(self):
         self._list_of_projects: List[Project] = ProjectsAgent.get_projects()
-        self._project_identifier_service = ProjectIdentifierService(self._list_of_projects)
+        project_names = [project.name for project in self._list_of_projects]
+        self._project_identifier_service = ProjectIdentifierService(project_names)
 
     # extracts the project from the input text.
     def extract_project(self, input_text: str) -> Project | None:
