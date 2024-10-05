@@ -55,30 +55,38 @@ class RetrievalService:
 
         number_of_results_per_type = int(number_of_results / 2)
 
-        vector_result = self._get_vector_search_result(question, number_of_results_per_type, vector_field_name)
-        text_result = self._get_text_retrieval_result(question, number_of_results_per_type)
+        vector_result = self._get_vector_search_result(question, number_of_results_per_type, vector_field_name, customer_project_id)
+        text_result = self._get_text_retrieval_result(question, number_of_results_per_type, customer_project_id)
 
-        filtered_vector_result = self._filter_knn_results(vector_result, customer_project_id)
+        # filtered_vector_result = self._filter_knn_results(vector_result, customer_project_id)
 
-        return RetrievalResult(text_result_items=text_result, vector_result_items=filtered_vector_result)
+        return RetrievalResult(text_result_items=text_result, vector_result_items=vector_result)
 
-    def _get_text_retrieval_result(self, user_question: str, number_of_results: int) -> List[SearchResult]:
+    def _get_text_retrieval_result(self,
+                                   user_question: str,
+                                   number_of_results: int,
+                                   customer_project_id: UUID | None) -> List[SearchResult]:
+
         text_query: Dict[str, Any] = {
             "bool": {
                 "must": {
                     "multi_match": {
                         "query": user_question,
-                        "fields": ["question", "answer^3", "category"],
+                        "fields": ["question", "answer", "category", "project_name"],
                         "type": "best_fields",
                         "boost": 0.5,
                     }
                 },
-                "filter": {"term": {"source_system": self.settings.source_system}},
-                "should": [
-                    {"exists": {"field": "project_id"}},
-                    {"bool": {"must_not": {"exists": {"field": "project_id"}}}}
+                "filter": [
+                    {"term": {"source_system": self.settings.source_system}},
+                    *([{"term": {"project_id": str(customer_project_id)}}] if customer_project_id else [])
                 ],
-                "minimum_should_match": 1
+
+                # "should": [
+                #     {"exists": {"field": "project_id"}},
+                #     {"bool": {"must_not": {"exists": {"field": "project_id"}}}}
+                # ],
+                # "minimum_should_match": 1
             }
         }
 
@@ -97,7 +105,11 @@ class RetrievalService:
 
         return result
 
-    def _get_vector_search_result(self, user_question: str, number_of_results: int, vector_field_name: str) -> List[SearchResult]:
+    def _get_vector_search_result(self,
+                                  user_question: str,
+                                  number_of_results: int,
+                                  vector_field_name: str,
+                                  customer_project_id: UUID | None) -> List[SearchResult]:
 
         query_vector = self.embedding_model.encode(user_question)
 
@@ -106,7 +118,10 @@ class RetrievalService:
             "query_vector": query_vector,
             "k": number_of_results,
             "num_candidates": 10000,
-            "filter": {"term": {"source_system": self.settings.source_system}},
+            "filter": [
+                {"term": {"source_system": self.settings.source_system}},
+                *([{"term": {"project_id": str(customer_project_id)}}] if customer_project_id else [])
+            ],
         }
 
         knn_response = self.es_client.search(
