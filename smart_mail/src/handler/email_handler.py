@@ -41,10 +41,8 @@ class EmailHandler:
         self._logger.info("Handling email from: %s, subject: %s", email_from, subject)
 
         start_time = time.time()
-        # user_metadata = UserMetadata.create(email_from)
 
         question = subject + " " + body
-
         extracted_project = self._content_data_preparer.extract_project(question)
 
         search_params = self._create_search_params(question, extracted_project)
@@ -72,7 +70,7 @@ class EmailHandler:
         search_params: Dict[str, Any] = {"question": question}
 
         if extracted_project:
-            search_params["included_project_id"] = extracted_project.id
+            search_params["customer_project_id"] = extracted_project.id
         return search_params
 
     def _save_to_database(self, email_from: str, subject: str, body: str, prompt: str,

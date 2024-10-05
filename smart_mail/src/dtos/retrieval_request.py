@@ -10,4 +10,4 @@
 #     vector_field_name: str
 
 #     # specifies the project ids that should be used in the search
-#     included_project_ids: List[UUID]
+#     customer_project_ids: List[UUID]
