@@ -37,12 +37,14 @@ def elasticsearch(data: DataFrame, *args, **kwargs):
         ),
         mappings=dict(
             properties=dict(
-                answer=dict(type="text"),
-                question=dict(type="text"),
-                section=dict(type="text"),
+                answer=dict(type="text", analyzer="german"),
+                question=dict(type="text", analyzer="german"),
+                category=dict(type="text", analyzer="german"),
+                project_name=dict(type="text", analyzer="german"),
                 document_id=dict(type="text"),
                 answer_instructions=dict(type="text"),
                 source_system=dict(type="keyword"),
+                project_id=dict(type="keyword"),
                 vector_question_answer=dict(
                     type="dense_vector",
                     dims=dimensions,
@@ -54,7 +56,7 @@ def elasticsearch(data: DataFrame, *args, **kwargs):
     )
 
     if es_client.indices.exists(index=index_name):
-            es_client.indices.delete(index=index_name)
+        es_client.indices.delete(index=index_name)
 
     es_client.indices.create(index=index_name, body=index_settings)
     print("Index created with properties:", index_settings)

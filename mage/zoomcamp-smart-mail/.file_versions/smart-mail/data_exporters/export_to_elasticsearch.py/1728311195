@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple, Union
 from pandas import DataFrame
 
 import numpy as np
-from elasticsearch import Elasticsearch, ConnectionTimeout
+from elasticsearch import Elasticsearch
 
 if "data_exporter" not in globals():
     from mage_ai.data_preparation.decorators import data_exporter
@@ -37,12 +37,14 @@ def elasticsearch(data: DataFrame, *args, **kwargs):
         ),
         mappings=dict(
             properties=dict(
-                answer=dict(type="text"),
-                question=dict(type="text"),
-                section=dict(type="text"),
+                answer=dict(type="text", analyzer="german"),  # German-specific analyzer
+                question=dict(type="text", analyzer="german"),
+                category=dict(type="text", analyzer="german"),
+                project_name=dict(type="text", analyzer="german"),
                 document_id=dict(type="text"),
                 answer_instructions=dict(type="text"),
                 source_system=dict(type="keyword"),
+                project_id=dict(type="keyword"),
                 vector_question_answer=dict(
                     type="dense_vector",
                     dims=dimensions,
@@ -54,12 +56,12 @@ def elasticsearch(data: DataFrame, *args, **kwargs):
     )
 
     if es_client.indices.exists(index=index_name):
-            es_client.indices.delete(index=index_name)
+        es_client.indices.delete(index=index_name)
 
-        es_client.indices.create(index=index_name, body=index_settings)
-        print("Index created with properties:", index_settings)
+    es_client.indices.create(index=index_name, body=index_settings)
+    print("Index created with properties:", index_settings)
 
-        print(f"Indexing {len(data)} data to Elasticsearch index '{index_name}'")
-        for idx, row in data.iterrows():
-            document_to_index = row.to_dict()
-            es_client.index(index=index_name, document=document_to_index)
+    print(f"Indexing {len(data)} data to Elasticsearch index '{index_name}'")
+    for idx, row in data.iterrows():
+        document_to_index = row.to_dict()
+        es_client.index(index=index_name, document=document_to_index)
