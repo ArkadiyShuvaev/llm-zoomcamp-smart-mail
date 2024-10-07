@@ -52,11 +52,11 @@ class RetrievalService:
         Returns:
             RetrievalResult: The retrieval result containing text_result_items and vector_result_items.
         """
-
+        customer_project_id_lowercased: str | None = str(customer_project_id).lower() if customer_project_id is not None else None
         number_of_results_per_type = int(number_of_results / 2)
 
-        vector_result = self._get_vector_search_result(question, number_of_results_per_type, vector_field_name, customer_project_id)
-        text_result = self._get_text_retrieval_result(question, number_of_results_per_type, customer_project_id)
+        vector_result = self._get_vector_search_result(question, number_of_results_per_type, vector_field_name, customer_project_id_lowercased)
+        text_result = self._get_text_retrieval_result(question, number_of_results_per_type, customer_project_id_lowercased)
 
         # filtered_vector_result = self._filter_knn_results(vector_result, customer_project_id)
 
@@ -65,16 +65,16 @@ class RetrievalService:
     def _get_text_retrieval_result(self,
                                    user_question: str,
                                    number_of_results: int,
-                                   customer_project_id: UUID | None) -> List[SearchResult]:
+                                   customer_project_id: str | None) -> List[SearchResult]:
 
         text_query: Dict[str, Any] = {
             "bool": {
                 "must": {
                     "multi_match": {
                         "query": user_question,
-                        "fields": ["question", "answer", "category", "project_name"],
+                        "fields": ["question^2", "answer^2", "category", "project_name"],
                         "type": "best_fields",
-                        "boost": 0.5,
+                        # "boost": 0.5,
                     }
                 },
                 "filter": [
@@ -109,7 +109,7 @@ class RetrievalService:
                                   user_question: str,
                                   number_of_results: int,
                                   vector_field_name: str,
-                                  customer_project_id: UUID | None) -> List[SearchResult]:
+                                  customer_project_id: str | None) -> List[SearchResult]:
 
         query_vector = self.embedding_model.encode(user_question)
 

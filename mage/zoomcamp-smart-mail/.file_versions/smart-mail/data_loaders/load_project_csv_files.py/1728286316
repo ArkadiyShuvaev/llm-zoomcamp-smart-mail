@@ -22,7 +22,7 @@ def load_data_from_file(*args, **kwargs) -> DataFrame:
     file_directories=['data/projects']
 
     df = FileIO().load(file_directories=file_directories, format='csv', delimiter=';')
-    df['project_id'] = df['project_id'].str.lower()
+    df['project_id'] = 
     return df
 
 

@@ -71,7 +71,7 @@ blocks:
   language: python
   name: replace none values with empty
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:

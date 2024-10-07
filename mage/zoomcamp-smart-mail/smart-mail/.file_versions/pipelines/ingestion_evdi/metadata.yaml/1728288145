@@ -71,13 +71,13 @@ blocks:
   language: python
   name: replace none values with empty
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - concatenate_csv_files
   uuid: replace_none_values_with_empty
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_source:
@@ -96,7 +96,7 @@ blocks:
   upstream_blocks:
   - replace_none_values_with_empty
   uuid: add_document_id_column
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_source:
@@ -115,7 +115,7 @@ blocks:
   upstream_blocks:
   - add_document_id_column
   uuid: create_embeddings
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_source:

@@ -21,7 +21,9 @@ def load_data_from_file(*args, **kwargs) -> DataFrame:
     # filepath = 'data/faq2_fixed.csv'
     file_directories=['data/projects']
 
-    return FileIO().load(file_directories=file_directories, format='csv', delimiter=';')
+    df = FileIO().load(file_directories=file_directories, format='csv', delimiter=';')
+    df['project_id'] = df['project_id'].str.lower()
+    return df
 
 
 @test
