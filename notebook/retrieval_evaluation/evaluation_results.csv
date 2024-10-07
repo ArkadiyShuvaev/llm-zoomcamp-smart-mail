@@ -1,6 +1,4 @@
 source_system;method;metric;value;model;description
-evdi;text;mrr;0.5545593869731802;distiluse-base-multilingual-cased-v1;text evaluation
-evdi;text;HR@K5;0.7264367816091954;distiluse-base-multilingual-cased-v1;text evaluation
 evdi;vector_answer;mrr;0.5219923371647511;distiluse-base-multilingual-cased-v1;vector evaluation against answer field
 evdi;vector_answer;HR@K5;0.7241379310344828;distiluse-base-multilingual-cased-v1;vector evaluation against answer field
 evdi;vector_question_answer;mrr;0.5786590038314177;paraphrase-multilingual-mpnet-base-v2;vector evaluation against question/answer pair
@@ -19,3 +17,7 @@ evdi;vector_question_answer;HR@K3;0.7149425287356321;distiluse-base-multilingual
 evdi;reranking_vector_question_answer;mrr;0.568697318007663;paraphrase-multilingual-mpnet-base-v2;reranking against question/answer pair
 evdi;reranking_vector_question_answer;HR@K5;0.8;paraphrase-multilingual-mpnet-base-v2;reranking against question/answer pair
 evdi;reranking_vector_question_answer;HR@K3;0.6689655172413793;paraphrase-multilingual-mpnet-base-v2;reranking against question/answer pair
+evdi;text;mrr;0.5620689655172414;distiluse-base-multilingual-cased-v1;text evaluation
+evdi;text;HR@K5;0.6436781609195402;distiluse-base-multilingual-cased-v1;text evaluation
+evdi;text_german_analyzer;mrr;0.6126436781609196;distiluse-base-multilingual-cased-v1;text evaluation
+evdi;text_german_analyzer;HR@K5;0.671264367816092;distiluse-base-multilingual-cased-v1;text evaluation
