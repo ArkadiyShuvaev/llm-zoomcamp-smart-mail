@@ -1,8 +1,7 @@
 {
   "name": "Notebook",
   "dockerComposeFile": [
-    "../../docker-compose.yml",
-    "../../docker-compose.devcontainer.notebook.yml"
+    "../../docker-compose.yml"
   ],
   "service": "notebook",
   "shutdownAction": "none",
