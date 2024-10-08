@@ -46,6 +46,8 @@ class EmailHandler:
         question = subject + " " + body
         extracted_project = self._content_data_preparer.extract_project(question)
 
+        self._logger.info("Processing content for the extracted project: %s", extracted_project)
+
         search_params = self._create_search_params(question, extracted_project)
         retrieval_result = self._retrieval_service.search(**search_params)
 
@@ -64,7 +66,7 @@ class EmailHandler:
         if len(reranked_search_results) == 0:
             return "", GenerationResult.empty(), 0.0
 
-        used_results = reranked_search_results[:5]
+        used_results = reranked_search_results[:10]
         prompt = self._prompt_creator.create(question, used_results)
 
         start_llm_time = time.time()
