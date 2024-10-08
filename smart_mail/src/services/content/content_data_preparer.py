@@ -12,12 +12,12 @@ class ContentDataPreparer:
 
     # extracts the project from the input text.
     def extract_project(self, input_text: str) -> Project | None:
-        identified_project_name = self._project_identifier_service.extract_project_name(input_text)
-        if identified_project_name is None:
+        identified_project = self._project_identifier_service.extract_project(input_text)
+        if identified_project is None:
             return None
 
         for project in self._list_of_projects:
-            if project.name.lower() == identified_project_name.lower():
+            if project.name.lower() == identified_project.name.lower():
                 return project
 
     # retrieves the list of projects in which a user invested for the given email.

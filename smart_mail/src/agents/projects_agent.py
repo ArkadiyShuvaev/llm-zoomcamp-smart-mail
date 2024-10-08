@@ -55,7 +55,7 @@ class ProjectsAgent:
             Project.create(uuid.UUID("710D7579-2500-480F-8169-E2350C2A6ABF"), "Solarpark Eyendorf"),
             Project.create(uuid.UUID("CEA056C8-E657-4051-A633-89D310ACECF7"), "DFI Zukunftspark Oberrhein II"),
             Project.create(uuid.UUID("689F8D79-AF06-4C23-8D14-7FB937E5E804"), "DFI Zukunftspark Nordbayern II"),
-            Project.create(uuid.UUID("CC215696-CDDF-43B2-BB79-BD204EFD64F3"), "Spendenprojekt - Green Forest Fund"),
+            # Project.create(uuid.UUID("CC215696-CDDF-43B2-BB79-BD204EFD64F3"), "Spendenprojekt - Green Forest Fund"),
             Project.create(uuid.UUID("5F74EEEB-0F8A-4A85-84B7-590EA468A2E6"), "Bürokomplex Alemannenhof III"),
             Project.create(uuid.UUID("2B23BAF6-503B-4A55-A4C2-52F075B681A9"), "DFI Zukunftspark Oberfranken II"),
             Project.create(uuid.UUID("280FBEAB-D3BC-47CD-AD6F-66ED4A55DC76"), "Office am Europaring III"),
