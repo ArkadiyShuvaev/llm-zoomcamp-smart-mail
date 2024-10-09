@@ -10,6 +10,7 @@
 		"python.analysis.typeCheckingMode": "strict",
 		"python.analysis.include": [
 			"**/smart_mail/**"
-		]
+		],
+		"cSpell.language": "en,de-de"
 	}
 }
