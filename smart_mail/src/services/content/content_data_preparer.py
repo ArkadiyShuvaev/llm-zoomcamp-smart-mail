@@ -22,6 +22,25 @@ class ContentDataPreparer:
             if project.name.lower() == identified_project.name.lower():
                 return project.id
 
+    def get_user_authorization_ids(self, email_from: str) -> List[str] | None:
+        """
+        Retrieves the list of authorization ids for the given email.
+        The first implementation retrieves the list of projects in which a user invested for the given email.
+
+        Args:
+            email_from (str): The email address of the user.
+
+        Returns:
+            List[UUID] | None: The list of authorization resource ids a user has access to.
+
+        """
+        user_projects = self.get_user_projects(email_from)
+        if len(user_projects) == 0:
+            return None
+
+        user_authorization_ids = [str(project.id) for project in user_projects]
+        return user_authorization_ids
+
     # retrieves the list of projects in which a user invested for the given email.
     def get_user_projects(self, user_email: str) -> List[Project]:
         return ProjectsAgent.get_projects_by_email(user_email)

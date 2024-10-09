@@ -39,7 +39,8 @@ class RetrievalService:
                question: str,
                number_of_results: int = 20,
                vector_field_name: str = "vector_question_answer",
-               customer_project_id: UUID | None = None) -> RetrievalResult:
+               customer_project_id: UUID | None = None,
+               authorization_ids: List[str] | None = None) -> RetrievalResult:
         """
         Search for user_question in the retrieval service.
 
@@ -55,8 +56,8 @@ class RetrievalService:
         customer_project_id_lowercased: str | None = str(customer_project_id).lower() if customer_project_id is not None else None
         number_of_results_per_type = int(number_of_results / 2)
 
-        vector_result = self._get_vector_search_result(question, number_of_results_per_type, vector_field_name, customer_project_id_lowercased)
-        text_result = self._get_text_retrieval_result(question, number_of_results_per_type, customer_project_id_lowercased)
+        vector_result = self._get_vector_search_result(question, number_of_results_per_type, vector_field_name, customer_project_id_lowercased, authorization_ids)
+        text_result = self._get_text_retrieval_result(question, number_of_results_per_type, customer_project_id_lowercased, authorization_ids)
 
         # filtered_vector_result = self._filter_knn_results(vector_result, customer_project_id)
 
@@ -65,7 +66,8 @@ class RetrievalService:
     def _get_text_retrieval_result(self,
                                    user_question: str,
                                    number_of_results: int,
-                                   customer_project_id: str | None) -> List[SearchResult]:
+                                   customer_project_id: str | None,
+                                   authorization_ids: List[str] | None) -> List[SearchResult]:
 
         text_query: Dict[str, Any] = {
             "bool": {
@@ -73,20 +75,14 @@ class RetrievalService:
                     "multi_match": {
                         "query": user_question,
                         "fields": ["question^2", "answer^2", "category", "project_name"],
-                        "type": "best_fields",
-                        # "boost": 0.5,
+                        "type": "best_fields"
                     }
                 },
                 "filter": [
                     {"term": {"source_system": self.settings.source_system}},
-                    *([{"term": {"project_id": str(customer_project_id)}}] if customer_project_id else [])
-                ],
-
-                # "should": [
-                #     {"exists": {"field": "project_id"}},
-                #     {"bool": {"must_not": {"exists": {"field": "project_id"}}}}
-                # ],
-                # "minimum_should_match": 1
+                    *([{"term": {"project_id": str(customer_project_id)}}] if customer_project_id else []),
+                    *([{"terms": {"authorization_id": authorization_ids}}] if authorization_ids else [])
+                ]
             }
         }
 
@@ -109,7 +105,8 @@ class RetrievalService:
                                   user_question: str,
                                   number_of_results: int,
                                   vector_field_name: str,
-                                  customer_project_id: str | None) -> List[SearchResult]:
+                                  customer_project_id: str | None,
+                                  authorization_ids: List[str] | None) -> List[SearchResult]:
 
         query_vector = self.embedding_model.encode(user_question)
 
@@ -120,7 +117,8 @@ class RetrievalService:
             "num_candidates": 10000,
             "filter": [
                 {"term": {"source_system": self.settings.source_system}},
-                *([{"term": {"project_id": str(customer_project_id)}}] if customer_project_id else [])
+                *([{"term": {"project_id": str(customer_project_id)}}] if customer_project_id else []),
+                *([{"terms": {"authorization_id": authorization_ids}}] if authorization_ids else [])
             ],
         }
 

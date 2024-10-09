@@ -45,10 +45,11 @@ class EmailHandler:
 
         question = subject + " " + body
         extracted_project_id = self._content_data_preparer.extract_project_id(question)
+        user_authorization_ids = self._content_data_preparer.get_user_authorization_ids(email_from)
 
         self._logger.info("Processing content for the extracted project: %s", extracted_project_id)
 
-        search_params = self._create_search_params(question, extracted_project_id)
+        search_params = self._create_search_params(question, extracted_project_id, user_authorization_ids)
         retrieval_result = self._retrieval_service.search(**search_params)
 
         reranked_search_results = self.reciprocal_rank_fusion_service.rerank(retrieval_result)
@@ -76,11 +77,17 @@ class EmailHandler:
         elapsed_llm_time = end_llm_time - start_llm_time
         return prompt, generation_result, elapsed_llm_time
 
-    def _create_search_params(self, question: str, extracted_project_id: UUID | None) -> Dict[str, Any]:
+    def _create_search_params(self,
+                              question: str, extracted_project_id: UUID | None,
+                              user_authorization_ids: List[str] | None) -> Dict[str, Any]:
         search_params: Dict[str, Any] = {"question": question}
 
         if extracted_project_id is not None:
             search_params["customer_project_id"] = extracted_project_id
+
+        if user_authorization_ids is not None:
+            search_params["authorization_ids"] = user_authorization_ids
+
         return search_params
 
     def _save_to_database(self, email_from: str, subject: str, body: str, prompt: str,
