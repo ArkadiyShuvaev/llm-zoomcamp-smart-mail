@@ -1,3 +1,154 @@
+#  Question 1
+I am planning to use Hugging Face library. Can you propose how can I extract project_name from the users' questions in order to use them as keywords? Should I have a list of all projects, etc? What should be my actions? Please note, that the questions will be in German, I cannot use models that were designed for English.
+
+#  Answer 1
+To extract the `project_name` from user questions in German using the Hugging Face library, there are several strategies you can follow. Since you plan to use Hugging Face, you'll have access to multilingual models that support German, as well as specialized German models.
+
+Here’s how you can approach this:
+
+### 1. **Maintain a List of Project Names**
+Yes, maintaining a list of all project names is a crucial step. This list can serve as a reference for identifying project names within user queries. The project names can be stored in a database or a file, and you can update this list as new projects are introduced.
+
+For example:
+```json
+[
+  "Projekt A",
+  "Projekt B",
+  "Das Haus",
+  "The Five"
+]
+```
+
+You will need to use these project names as keywords to identify which project the user is asking about in their query. Here's the step-by-step plan:
+
+### 2. **Using a German Model for Named Entity Recognition (NER)**
+
+https://huggingface.co/models?language=de&other=named-entity-recognition&sort=modified
+
+Hugging Face provides several pre-trained models that are specifically designed for the German language and include Named Entity Recognition (NER) functionality. You can use these models to extract project names from user questions. Although project names may not always fall under traditional entity categories (like `ORG`, `LOC`, etc.), you can use NER as a first step to extract potential entity candidates.
+
+For example, use the `deepset/gbert-large` or `dbmdz/bert-large-cased-finetuned-conll03-english` models, which support German:
+
+```python
+from transformers import pipeline
+
+# Load the German NER model from Hugging Face
+ner = pipeline("ner", model="dbmdz/bert-large-cased-finetuned-conll03-german")
+
+# Example question
+question = "Was ist der Zinssatz für das Projekt The Five?"
+
+# Apply NER to extract named entities
+entities = ner(question)
+
+for entity in entities:
+    print(entity)
+```
+
+The NER model may identify project names if they resemble named entities (such as organizations). However, NER might not always be perfect for this specific task, so you will likely need additional steps.
+
+### 3. **Fuzzy Matching for Project Name Recognition**
+Since project names may not always be recognized by NER, another effective method is **fuzzy string matching**. Once you have a list of project names, you can use libraries like `fuzzywuzzy` or Hugging Face's `datasets` library to perform fuzzy matching between the user’s question and your list of project names.
+
+Here’s how you can implement fuzzy matching:
+
+```python
+from fuzzywuzzy import process
+
+# List of project names
+projects = ["Projekt A", "Projekt B", "Das Haus", "The Five"]
+
+# User's question
+question = "Was ist der Zinssatz für das Projekt The Five?"
+
+# Extract the most likely project from the question using fuzzy matching
+project_name, confidence = process.extractOne(question, projects)
+
+print(f"Matched Project: {project_name} with confidence: {confidence}")
+```
+
+In this case, you’d extract the project name `"The Five"` from the question and then proceed to query your index based on that result.
+
+### 4. **Keyword-Based Approach**
+A simpler approach is to scan the user’s question for keywords that match project names from your list. This approach works well when you have well-defined project names.
+
+Here’s an example:
+
+```python
+# List of project names
+projects = ["Projekt A", "Projekt B", "Das Haus", "The Five"]
+
+# User's question
+question = "Was ist der Zinssatz für das Projekt The Five?"
+
+# Look for exact matches of project names in the question
+matched_projects = [project for project in projects if project.lower() in question.lower()]
+
+if matched_projects:
+    print(f"Project found: {matched_projects[0]}")
+else:
+    print("No project found.")
+```
+
+This method is faster and simpler but may miss typos or partial matches, which is why combining it with fuzzy matching can be very effective.
+
+### 5. **Train a Custom Model for Project Name Extraction**
+If you have sufficient data, you can fine-tune a German transformer model (e.g., BERT, XLM-R, or GPT) to extract project names specifically. You’ll need labeled training data that highlights project names in various sentences. Hugging Face makes it easy to fine-tune models for NER or other tasks using the `Trainer` API.
+
+The workflow would look like this:
+1. Label the training data (questions with highlighted project names).
+2. Fine-tune a pre-trained German model like `bert-base-german-cased` or `xlm-roberta-large`.
+3. Use the fine-tuned model to extract project names.
+
+### 6. **Actionable Steps**
+
+1. **Prepare a List of Project Names**: Create and maintain an up-to-date list of all project names (or project IDs).
+2. **Use a Pre-Trained German NER Model**: Try out pre-trained German NER models from Hugging Face and see if they can identify project names from user questions.
+3. **Incorporate Fuzzy Matching**: Use fuzzy matching techniques to capture project names, especially when there might be slight variations in spelling or wording in the user query.
+4. **Combine Methods**: Combine NER and fuzzy matching approaches for optimal performance. NER will help with more structured entities, while fuzzy matching will catch variations.
+5. **Use Hugging Face Pipelines**: Implement the retrieval logic using Hugging Face’s `pipeline` functions for NER and text search.
+6. **Future Option – Train a Custom Model**: Fine-tune a custom model for project name extraction if your project grows and you want more precise control over entity recognition.
+
+### 7. **Example Workflow with Fuzzy Matching + NER**
+Here’s an example that combines NER and fuzzy matching:
+
+```python
+from transformers import pipeline
+from fuzzywuzzy import process
+
+# Load NER model
+ner = pipeline("ner", model="dbmdz/bert-large-cased-finetuned-conll03-german")
+
+# List of project names
+projects = ["Projekt A", "Projekt B", "Das Haus", "The Five"]
+
+# User's question
+question = "Was ist der Zinssatz für das Projekt The Five?"
+
+# Step 1: Try to identify named entities
+entities = ner(question)
+
+# Step 2: Fuzzy matching for project names
+project_name, confidence = process.extractOne(question, projects)
+
+# Combine results
+print(f"Entities found: {entities}")
+print(f"Fuzzy Matched Project: {project_name} with confidence: {confidence}")
+```
+
+By applying both approaches, you increase the chances of accurately extracting the project name from the user's question.
+
+### Conclusion
+1. **Maintain a list of all project names** as a reference.
+2. Use **NER models** from Hugging Face, preferably multilingual or German-specific models.
+3. Employ **fuzzy matching** to enhance project name extraction from questions.
+4. Consider fine-tuning a custom model for German question-answer data if you require greater accuracy.
+
+This hybrid approach ensures your system is capable of accurately extracting project names and directing user queries to the correct information.
+
+# Question 2
+How to evaluate the function that extracts project names from customer emails? I have a ground truth CSV file that contains the expected project names and the customer email content. What metrics should I use, and what systematic approach should I follow to assess the accuracy and performance of the function?
+# Answer 2
 Evaluating a function that extracts project names from customer emails requires both **quantitative metrics** and a **systematic approach** to assess its accuracy and performance. Since there is a **ground truth CSV file** containing both the expected project names and the customer email content, we can measure how well the function performs by comparing its outputs with the expected results.
 
 ### Step-by-Step Approach
