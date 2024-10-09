@@ -1,9 +1,9 @@
 import time
 import logging
 from typing import Dict, Any, List
+from uuid import UUID
 
 from common.settings import Settings
-from dtos.project import Project
 from services.database.database_service import DatabaseService
 from services.generation.generation_result import GenerationResult
 from services.generation.generation_service import GenerationService
@@ -44,11 +44,11 @@ class EmailHandler:
         start_time = time.time()
 
         question = subject + " " + body
-        extracted_project = self._content_data_preparer.extract_project(question)
+        extracted_project_id = self._content_data_preparer.extract_project_id(question)
 
-        self._logger.info("Processing content for the extracted project: %s", extracted_project)
+        self._logger.info("Processing content for the extracted project: %s", extracted_project_id)
 
-        search_params = self._create_search_params(question, extracted_project)
+        search_params = self._create_search_params(question, extracted_project_id)
         retrieval_result = self._retrieval_service.search(**search_params)
 
         reranked_search_results = self.reciprocal_rank_fusion_service.rerank(retrieval_result)
@@ -76,11 +76,11 @@ class EmailHandler:
         elapsed_llm_time = end_llm_time - start_llm_time
         return prompt, generation_result, elapsed_llm_time
 
-    def _create_search_params(self, question: str, extracted_project: Project | None) -> Dict[str, Any]:
+    def _create_search_params(self, question: str, extracted_project_id: UUID | None) -> Dict[str, Any]:
         search_params: Dict[str, Any] = {"question": question}
 
-        if extracted_project:
-            search_params["customer_project_id"] = extracted_project.id
+        if extracted_project_id is not None:
+            search_params["customer_project_id"] = extracted_project_id
         return search_params
 
     def _save_to_database(self, email_from: str, subject: str, body: str, prompt: str,
