@@ -1,0 +1,73 @@
+// Inspect Document Mapping
+GET http://elasticsearch:9200/documents/_mapping
+
+
+// Check Sample Document
+GET http://elasticsearch:9200/documents/_doc/AodAd5IBsqFCQLJ6kEZY
+Content-Type: application/json
+
+
+
+
+// Test a Simplified Query:
+// {
+//     "query": {
+//         "bool": {
+//             "must": [
+//                 {"term": {"project_id": user_project_id}},
+//                 {"term": {"authorization_id": user_authorization_id}}
+//             ]
+//         }
+//     }
+// }
+
+
+// Check Authorization ID Field Presence and Value
+GET http://elasticsearch:9200/documents/_search
+Content-Type: application/json
+{
+  "query": {
+    "exists": {
+      "field": "authorization_id"
+    }
+  }
+}
+
+
+// Check Authorization ID Field Presence and Value:
+GET /your_index/_search
+{
+  "query": {
+    "exists": {
+      "field": "authorization_id"
+    }
+  }
+}
+
+// Check Specific Values of authorization_id
+GET /your_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "unique_auth_ids": {
+      "terms": {
+        "field": "authorization_id",
+        "size": 10
+      }
+    }
+  }
+}
+
+
+// Examine the Query Execution Plan:
+GET http://elasticsearch:9200/documents/_explain/document_id
+{
+  "query": {
+    "bool": {
+        "must": [
+            {"term": {"project_id": user_project_id}},
+            {"term": {"authorization_id": user_authorization_id}}
+        ]
+    }
+  }
+}
