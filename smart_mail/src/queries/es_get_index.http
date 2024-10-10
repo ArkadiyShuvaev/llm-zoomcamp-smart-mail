@@ -35,7 +35,8 @@ Content-Type: application/json
 
 
 // Check Authorization ID Field Presence and Value:
-GET /your_index/_search
+GET http://elasticsearch:9200/documents/_search
+Content-Type: application/json
 {
   "query": {
     "exists": {
@@ -60,14 +61,63 @@ GET /your_index/_search
 
 
 // Examine the Query Execution Plan:
-GET http://elasticsearch:9200/documents/_explain/document_id
+GET http://elasticsearch:9200/documents/_explain/AodAd5IBsqFCQLJ6kEZY
+Content-Type: application/json
 {
   "query": {
     "bool": {
         "must": [
-            {"term": {"project_id": user_project_id}},
-            {"term": {"authorization_id": user_authorization_id}}
+            {"term": {"project_id": "0113c948-c9ce-4a3d-af99-d66bdede7d33"}},
+            {"term": {"authorization_id": "0113c948-c9ce-4a3d-af99-d66bdede7d33"}}
         ]
     }
   }
+}
+
+GET http://elasticsearch:9200/documents/_search
+Content-Type: application/json
+{
+  "query":{
+    "bool": {
+        "must": [
+            {
+                "multi_match": {
+                    "query": "Warum habe ich keine Zahlung für Project XYZ erhalten?",
+                    "fields": ["question^2", "answer^2", "category", "project_name"],
+                    "type": "best_fields"
+                }
+            }
+        ],
+        "filter": [
+            # Public documents (no project_id and no authorization_id)
+            {
+                "bool": {
+                    "should": [
+                        # Case 1: Public documents (no project_id, no authorization_id)
+                        {"bool": {"must_not": {"exists": {"field": "project_id"}}}},
+
+                        # Case 2: Documents with project_id only
+                        {"bool": {
+                            "must": [
+                                {"exists": {"field": "project_id"}},
+                                {"term": {"project_id": "0113c948-c9ce-4a3d-af99-d66bdede7d33"}},
+                                {"bool": {"must_not": {"exists": {"field": "authorization_id"}}}}
+                            ]
+                        }},
+
+                        # Case 3: Documents with both project_id and authorization_id
+                        {"bool": {
+                            "must": [
+                                {"term": {"project_id": "0113c948-c9ce-4a3d-af99-d66bdede7d33"}},
+                                {"terms": {"authorization_id": ["0113c948-c9ce-4a3d-af99-d66bdede7d33"]}}
+                            ]
+                        }}
+                    ]
+                }
+            },
+            # Optional filters such as "source_system"
+            {"term": {"source_system": "evdi"}}
+        ]
+    }
+}
 }

@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 from typing import Any, Dict
-from uuid import UUID
-import uuid
 
 
 @dataclass
@@ -25,8 +23,9 @@ class SearchResult:
     answer: str
     document_id: str
     answer_instructions: str | None
-    project_id: UUID | None
+    project_id: str | None
     project_name: str | None
+    authorization_id: str | None
 
     @classmethod
     def create(cls, score: float, doc: Dict[str, Any]) -> "SearchResult":
@@ -35,11 +34,6 @@ class SearchResult:
         answer_instructions: str | None = doc.get("answer_instructions")
         if answer_instructions is not None and answer_instructions.strip() != "":
             answer_instructions_value = answer_instructions
-
-        project_id_value = doc.get("project_id")
-        project_id = None
-        if project_id_value is not None:
-            project_id = uuid.UUID(project_id_value)
 
         project_name = doc.get("project_name") if not None else None
 
@@ -50,8 +44,9 @@ class SearchResult:
             doc["answer"],
             doc["document_id"],
             answer_instructions_value,
-            project_id,
-            project_name
+            doc.get("project_id"),
+            project_name,
+            doc.get("authorization_id")
         )
 
         return result

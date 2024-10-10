@@ -2,6 +2,7 @@ from typing import Any, Dict, List
 from uuid import UUID
 
 from sentence_transformers import SentenceTransformer
+from torch import Tensor
 from common.settings import Settings
 from services.search_result import SearchResult
 from elasticsearch import Elasticsearch
@@ -22,8 +23,8 @@ class RetrievalService:
         settings (Settings): Configuration settings for the retrieval service.
     """
 
-    SOURCE_FIELDS = ["category", "question", "answer", "document_id",
-                     "answer_instructions", "project_id", "project_name"]
+    SOURCE_FIELDS = ["score", "category", "question", "answer", "document_id",
+                     "answer_instructions", "project_id", "authorization_id", "project_name"]
 
     def __init__(
         self,
@@ -40,7 +41,7 @@ class RetrievalService:
                number_of_results: int = 20,
                vector_field_name: str = "vector_question_answer",
                customer_project_id: UUID | None = None,
-               authorization_ids: List[str] | None = None) -> RetrievalResult:
+               authorization_ids: List[str] | None = []) -> RetrievalResult:
         """
         Search for user_question in the retrieval service.
 
@@ -49,10 +50,14 @@ class RetrievalService:
             number_of_results (int, optional): The number of results to retrieve. Defaults to 10.
             vector_field_name (str, optional): The name of the field containing the vector embeddings. Defaults to "vector_question_answer".
             customer_project_id (UUID | None): A project id to filter the retrieval result. If the result does not have field 'project_id', the one is included.
+            authorization_ids (List[str], optional): A list of authorization ids to filter the protected documents that the user has access to. Defaults to [].
 
         Returns:
             RetrievalResult: The retrieval result containing text_result_items and vector_result_items.
         """
+        authorization_ids = authorization_ids or []
+
+        # TODO: Move to Content Data preparer
         customer_project_id_lowercased: str | None = str(customer_project_id).lower() if customer_project_id is not None else None
         number_of_results_per_type = int(number_of_results / 2)
 
@@ -67,24 +72,9 @@ class RetrievalService:
                                    user_question: str,
                                    number_of_results: int,
                                    customer_project_id: str | None,
-                                   authorization_ids: List[str] | None) -> List[SearchResult]:
+                                   authorization_ids: List[str]) -> List[SearchResult]:
 
-        text_query: Dict[str, Any] = {
-            "bool": {
-                "must": {
-                    "multi_match": {
-                        "query": user_question,
-                        "fields": ["question^2", "answer^2", "category", "project_name"],
-                        "type": "best_fields"
-                    }
-                },
-                "filter": [
-                    {"term": {"source_system": self.settings.source_system}},
-                    *([{"term": {"project_id": str(customer_project_id)}}] if customer_project_id else []),
-                    *([{"terms": {"authorization_id": authorization_ids}}] if authorization_ids else [])
-                ]
-            }
-        }
+        text_query = self._create_text_query(user_question, self.settings.source_system, customer_project_id, authorization_ids)
 
         body: Dict[str, Any] = {
             "query": text_query,
@@ -106,21 +96,11 @@ class RetrievalService:
                                   number_of_results: int,
                                   vector_field_name: str,
                                   customer_project_id: str | None,
-                                  authorization_ids: List[str] | None) -> List[SearchResult]:
+                                  authorization_ids: List[str]) -> List[SearchResult]:
 
         query_vector = self.embedding_model.encode(user_question)
 
-        knn_query: Dict[str, Any] = {
-            "field": vector_field_name,
-            "query_vector": query_vector,
-            "k": number_of_results,
-            "num_candidates": 10000,
-            "filter": [
-                {"term": {"source_system": self.settings.source_system}},
-                *([{"term": {"project_id": str(customer_project_id)}}] if customer_project_id else []),
-                *([{"terms": {"authorization_id": authorization_ids}}] if authorization_ids else [])
-            ],
-        }
+        knn_query = self._create_knn_query(vector_field_name, query_vector, number_of_results, self.settings.source_system, customer_project_id, authorization_ids)
 
         knn_response = self.es_client.search(
             index=self.settings.index_name,
@@ -159,3 +139,78 @@ class RetrievalService:
     def _create_search_result(self, hit: Dict[str, Any]) -> SearchResult:
         result = SearchResult.create(hit["_score"], hit["_source"])
         return result
+
+    def _create_knn_query(
+        self,
+        vector_field_name: str,
+        query_vector: Tensor,
+        number_of_results: int,
+        source_system: str,
+        customer_project_id: str | None,
+        authorization_ids: List[str] | None
+    ) -> Dict[str, Any]:
+        return {
+            "field": vector_field_name,
+            "query_vector": query_vector,
+            "k": number_of_results,
+            "num_candidates": 10000,
+            "filter": self._create_filter_block(source_system, customer_project_id, authorization_ids)
+        }
+
+    def _create_text_query(
+        self,
+        user_question: str,
+        source_system: str,
+        customer_project_id: str | None,
+        authorization_ids: List[str] | None
+    ) -> Dict[str, Any]:
+        return {
+            "bool": {
+                "must": {
+                    "multi_match": {
+                        "query": user_question,
+                        "fields": ["question^2", "answer^2", "category", "project_name"],
+                        "type": "best_fields"
+                    }
+                },
+                "filter": self._create_filter_block(source_system, customer_project_id, authorization_ids)
+            }
+        }
+
+    def _create_filter_block(
+        self,
+        source_system: str,
+        customer_project_id: str | None,
+        authorization_ids: List[str] | None
+    ) -> List[Any]:
+        filter_block = [
+            {
+                "bool": {
+                    "should": [
+                        # Case 1: Public documents (no project_id, no authorization_id)
+                        {"bool": {"must_not": {"exists": {"field": "project_id"}}}},
+
+                        # Case 2: Documents with project_id only
+                        {"bool": {
+                            "must": [
+                                {"exists": {"field": "project_id"}},
+                                {"term": {"project_id": customer_project_id}},
+                                {"bool": {"must_not": {"exists": {"field": "authorization_id"}}}}
+                            ]
+                        }},
+
+                        # Case 3: Documents with both project_id and authorization_id
+                        {"bool": {
+                            "must": [
+                                {"term": {"project_id": customer_project_id}},
+                                {"terms": {"authorization_id": authorization_ids}}
+                            ]
+                        }}
+                    ]
+                }
+            },
+            # Optional filters such as "source_system"
+            {"term": {"source_system": source_system}}
+        ]
+
+        return filter_block

@@ -55,7 +55,8 @@ class ReciprocalRankFusionService:
                         document_id=item.document_id,
                         answer_instructions=item.answer_instructions,
                         project_id=item.project_id,
-                        project_name=item.project_name
+                        project_name=item.project_name,
+                        authorization_id=item.authorization_id
                     )
 
                     result.append(search_result)
