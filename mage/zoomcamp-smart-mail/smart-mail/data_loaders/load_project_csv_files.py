@@ -23,6 +23,7 @@ def load_data_from_file(*args, **kwargs) -> DataFrame:
 
     df = FileIO().load(file_directories=file_directories, format='csv', delimiter=';')
     df['project_id'] = df['project_id'].str.lower()
+    df['authorization_id'] = df['authorization_id'].str.lower()
     return df
 
 

@@ -45,6 +45,7 @@ def elasticsearch(data: DataFrame, *args, **kwargs):
                 answer_instructions=dict(type="text"),
                 source_system=dict(type="keyword"),
                 project_id=dict(type="keyword"),
+                authorization_id=dict(type="keyword"),
                 vector_question_answer=dict(
                     type="dense_vector",
                     dims=dimensions,
