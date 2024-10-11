@@ -1,7 +1,6 @@
 import time
 import logging
 from typing import Dict, Any, List
-from uuid import UUID
 
 from common.settings import Settings
 from services.database.database_service import DatabaseService
@@ -78,7 +77,8 @@ class EmailHandler:
         return prompt, generation_result, elapsed_llm_time
 
     def _create_search_params(self,
-                              question: str, extracted_project_id: UUID | None,
+                              question: str,
+                              extracted_project_id: str | None,
                               user_authorization_ids: List[str] | None) -> Dict[str, Any]:
         search_params: Dict[str, Any] = {"question": question}
 

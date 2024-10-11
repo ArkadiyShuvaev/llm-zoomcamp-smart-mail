@@ -49,7 +49,7 @@ class RetrievalService:
             question (str): The question to search for.
             number_of_results (int, optional): The number of results to retrieve. Defaults to 10.
             vector_field_name (str, optional): The name of the field containing the vector embeddings. Defaults to "vector_question_answer".
-            customer_project_id (UUID | None): A project id to filter the retrieval result. If the result does not have field 'project_id', the one is included.
+            customer_project_id (str | None): A project id to filter the retrieval result. If the result does not have field 'project_id', the one is included.
             authorization_ids (List[str], optional): A list of authorization ids to filter the protected documents that the user has access to. Defaults to [].
 
         Returns:

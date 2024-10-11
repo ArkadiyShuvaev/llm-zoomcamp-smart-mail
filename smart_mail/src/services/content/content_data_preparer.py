@@ -1,5 +1,4 @@
 from typing import Any, Dict, List
-from uuid import UUID
 
 from agents.projects_agent import ProjectsAgent
 from dtos.project import Project
@@ -13,14 +12,14 @@ class ContentDataPreparer:
         self._project_identifier_service = ProjectIdentifierService(project_names)
 
     # extracts the project from the input text.
-    def extract_project_id(self, input_text: str) -> UUID | None:
+    def extract_project_id(self, input_text: str) -> str | None:
         identified_project = self._project_identifier_service.extract_project(input_text)
         if identified_project is None:
             return None
 
         for project in self._list_of_projects:
             if project.name.lower() == identified_project.name.lower():
-                return project.id
+                return str(project.id)
 
     def get_user_authorization_ids(self, email_from: str) -> List[str] | None:
         """
