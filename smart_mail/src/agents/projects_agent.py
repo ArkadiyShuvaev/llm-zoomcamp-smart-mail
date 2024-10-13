@@ -1,6 +1,6 @@
 from typing import List
 import uuid
-from common.emails import get_email_with_investments
+from common.emails import get_email_with_investments_in_project1, get_email_with_investments_in_project2
 
 from dtos.project import Project
 
@@ -10,12 +10,18 @@ class ProjectsAgent:
 
     @staticmethod
     def get_projects_by_email(email: str) -> List[Project]:
-        if email == get_email_with_investments():
+        if email == get_email_with_investments_in_project1():
             return [
                 Project.create(uuid.UUID("00000000-0000-0000-0000-000000000001"), "Fake project 1"),
                 Project.create(uuid.UUID("0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"), "The Five"),
                 Project.create(uuid.UUID("D1F21F84-9EEC-4D0B-A63A-BF656A28A256"), "DFI Zukunftspark Oberfranken V"),
                 Project.create(uuid.UUID("716867B4-C28C-425E-94BE-59886D853D49"), "Berliner Flair in Friedrichshain II")
+            ]
+
+        if email == get_email_with_investments_in_project2():
+            return [
+                Project.create(uuid.UUID("00000000-0000-0000-0000-000000000002"), "Fake project 2"),
+                Project.create(uuid.UUID("2e239357-4967-40e6-807e-b9eb87fab5ad"), "Pracht-Altbau Sendlinger Tor")
             ]
 
         return []
