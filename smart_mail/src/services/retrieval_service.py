@@ -183,34 +183,45 @@ class RetrievalService:
         customer_project_id: str | None,
         authorization_ids: List[str] | None
     ) -> List[Any]:
+
         filter_block = [
             {
                 "bool": {
                     "should": [
                         # Case 1: Public documents (no project_id, no authorization_id)
                         {"bool": {"must_not": {"exists": {"field": "project_id"}}}},
-
-                        # Case 2: Documents with project_id only
-                        {"bool": {
-                            "must": [
-                                {"exists": {"field": "project_id"}},
-                                {"term": {"project_id": customer_project_id}},
-                                {"bool": {"must_not": {"exists": {"field": "authorization_id"}}}}
-                            ]
-                        }},
-
-                        # Case 3: Documents with both project_id and authorization_id
-                        {"bool": {
-                            "must": [
-                                {"term": {"project_id": customer_project_id}},
-                                {"terms": {"authorization_id": authorization_ids}}
-                            ]
-                        }}
                     ]
                 }
             },
             # Optional filters such as "source_system"
             {"term": {"source_system": source_system}}
         ]
+
+        # Case 2: Documents with project_id only, include only if customer_project_id is provided
+        if customer_project_id is not None:
+            filter_block[0]["bool"]["should"].append( # type: ignore
+                {
+                    "bool": {
+                        "must": [
+                            {"exists": {"field": "project_id"}},
+                            {"term": {"project_id": customer_project_id}},
+                            {"bool": {"must_not": {"exists": {"field": "authorization_id"}}}}
+                        ]
+                    }
+                }
+            )
+
+        # Case 3: Documents with both project_id and authorization_id, include only if both are provided
+        if customer_project_id is not None and authorization_ids:
+            filter_block[0]["bool"]["should"].append( # type: ignore
+                {
+                    "bool": {
+                        "must": [
+                            {"term": {"project_id": customer_project_id}},
+                            {"terms": {"authorization_id": authorization_ids}}
+                        ]
+                    }
+                }
+            )
 
         return filter_block
