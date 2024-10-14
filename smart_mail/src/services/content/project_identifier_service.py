@@ -13,7 +13,7 @@ class ProjectIdentifierService:
         self._tokenizer = AutoTokenizer.from_pretrained(self._model_name)
         self._model = AutoModel.from_pretrained(self._model_name)
 
-    def extract_project(self, input_text: str, similarity_threshould: float = 0.2) -> IdentifiedProject | None:
+    def extract_project(self, input_text: str, similarity_threshold: float = 0.185) -> IdentifiedProject | None:
         # Get embeddings for the input text
         input_embedding = self._get_embeddings(input_text)
 
@@ -24,7 +24,7 @@ class ProjectIdentifierService:
         similarities: List[float] = [cosine_similarity(input_embedding.unsqueeze(0), proj_emb.unsqueeze(0)).item() for proj_emb in project_embeddings]
 
         max_similarity_value: float = max(similarities)
-        if max_similarity_value <= similarity_threshould:
+        if max_similarity_value <= similarity_threshold:
             return None
 
         # Find the most similar project name
