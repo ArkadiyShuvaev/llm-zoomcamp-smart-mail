@@ -182,24 +182,20 @@ class RetrievalService:
         source_system: str,
         customer_project_id: str | None,
         authorization_ids: List[str] | None
-    ) -> List[Any]:
+    ) -> Dict[str, Any]:
+        # Base query (KNN or text search) with a filter block
+        base_query = {
+            "bool": {
+                "should": [
+                    # Case 1: Public documents (no project_id, no authorization_id)
+                    {"bool": {"must_not": {"exists": {"field": "project_id"}}}},
+                ]
+            }
+        }
 
-        filter_block = [
-            {
-                "bool": {
-                    "should": [
-                        # Case 1: Public documents (no project_id, no authorization_id)
-                        {"bool": {"must_not": {"exists": {"field": "project_id"}}}},
-                    ]
-                }
-            },
-            # Optional filters such as "source_system"
-            {"term": {"source_system": source_system}}
-        ]
-
-        # Case 2: Documents with project_id only, include only if customer_project_id is provided
+        # Case 2: Documents with project_id only
         if customer_project_id is not None:
-            filter_block[0]["bool"]["should"].append( # type: ignore
+            base_query["bool"]["should"].append(
                 {
                     "bool": {
                         "must": [
@@ -211,9 +207,9 @@ class RetrievalService:
                 }
             )
 
-        # Case 3: Documents with both project_id and authorization_id, include only if both are provided
+        # Case 3: Documents with both project_id and authorization_id
         if customer_project_id is not None and authorization_ids:
-            filter_block[0]["bool"]["should"].append( # type: ignore
+            base_query["bool"]["should"].append(
                 {
                     "bool": {
                         "must": [
@@ -224,4 +220,48 @@ class RetrievalService:
                 }
             )
 
-        return filter_block
+        # Optional filter: source_system
+        base_filter = [{"term": {"source_system": source_system}}]
+
+        # Using function_score to boost Case 3 and Case 2
+        boosted_query = {
+            "function_score": {
+                "query": {
+                    "bool": {
+                        "must": base_filter,
+                        "should": base_query["bool"]["should"],
+                        "minimum_should_match": 1  # At least one condition must match
+                    }
+                },
+                "functions": [
+                    # Boost Case 3 (highest boost)
+                    {
+                        "filter": {
+                            "bool": {
+                                "must": [
+                                    {"term": {"project_id": customer_project_id}},
+                                    {"terms": {"authorization_id": authorization_ids}}
+                                ]
+                            }
+                        },
+                        "weight": 5  # Increase rank for Case 3
+                    },
+                    # Boost Case 2 (lower boost than Case 3)
+                    {
+                        "filter": {
+                            "bool": {
+                                "must": [
+                                    {"exists": {"field": "project_id"}},
+                                    {"term": {"project_id": customer_project_id}},
+                                    {"bool": {"must_not": {"exists": {"field": "authorization_id"}}}}
+                                ]
+                            }
+                        },
+                        "weight": 3  # Increase rank for Case 2
+                    }
+                ],
+                "boost_mode": "sum"  # Combine the base score with the boost weights
+            }
+        }
+
+        return boosted_query
