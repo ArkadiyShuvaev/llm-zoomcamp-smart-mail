@@ -1,9 +1,9 @@
 // Inspect Document Mapping
-GET http://elasticsearch:9200/documents/_mapping
+GET http://localhost:9200/documents/_mapping
 
 
 // Check Sample Document
-GET http://elasticsearch:9200/documents/_doc/AodAd5IBsqFCQLJ6kEZY
+GET http://localhost:9200/documents/_doc/AodAd5IBsqFCQLJ6kEZY
 Content-Type: application/json
 
 
@@ -23,7 +23,7 @@ Content-Type: application/json
 
 
 // Check Authorization ID Field Presence and Value
-GET http://elasticsearch:9200/documents/_search
+GET http://localhost:9200/documents/_search
 Content-Type: application/json
 {
   "query": {
@@ -35,7 +35,7 @@ Content-Type: application/json
 
 
 // Check Authorization ID Field Presence and Value:
-GET http://elasticsearch:9200/documents/_search
+GET http://localhost:9200/documents/_search
 Content-Type: application/json
 {
   "query": {
@@ -61,7 +61,7 @@ GET /your_index/_search
 
 
 // Examine the Query Execution Plan:
-GET http://elasticsearch:9200/documents/_explain/AodAd5IBsqFCQLJ6kEZY
+GET http://localhost:9200/documents/_explain/AodAd5IBsqFCQLJ6kEZY
 Content-Type: application/json
 {
   "query": {
@@ -74,7 +74,7 @@ Content-Type: application/json
   }
 }
 
-GET http://elasticsearch:9200/documents/_search
+GET http://localhost:9200/documents/_search
 Content-Type: application/json
 {
   "query":{
