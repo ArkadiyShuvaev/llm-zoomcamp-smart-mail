@@ -222,46 +222,62 @@ class RetrievalService:
 
         # Optional filter: source_system
         base_filter = [{"term": {"source_system": source_system}}]
+        
+        # Dynamically add the boost functions only if the relevant fields are present
+        functions = []
 
-        # Using function_score to boost Case 3 and Case 2
-        boosted_query = {
-            "function_score": {
-                "query": {
+        # Boost Case 3 (highest boost)
+        if customer_project_id is not None and authorization_ids:
+            functions.append({
+                "filter": {
                     "bool": {
-                        "must": base_filter,
-                        "should": base_query["bool"]["should"],
-                        "minimum_should_match": 1  # At least one condition must match
+                        "must": [
+                            {"term": {"project_id": customer_project_id}},
+                            {"terms": {"authorization_id": authorization_ids}}
+                        ]
                     }
                 },
-                "functions": [
-                    # Boost Case 3 (highest boost)
-                    {
-                        "filter": {
-                            "bool": {
-                                "must": [
-                                    {"term": {"project_id": customer_project_id}},
-                                    {"terms": {"authorization_id": authorization_ids}}
-                                ]
-                            }
-                        },
-                        "weight": 5  # Increase rank for Case 3
-                    },
-                    # Boost Case 2 (lower boost than Case 3)
-                    {
-                        "filter": {
-                            "bool": {
-                                "must": [
-                                    {"exists": {"field": "project_id"}},
-                                    {"term": {"project_id": customer_project_id}},
-                                    {"bool": {"must_not": {"exists": {"field": "authorization_id"}}}}
-                                ]
-                            }
-                        },
-                        "weight": 3  # Increase rank for Case 2
+                "weight": 5  # Increase rank for Case 3
+            })
+
+        # Boost Case 2 (lower boost than Case 3)
+        if customer_project_id is not None:
+            functions.append({
+                "filter": {
+                    "bool": {
+                        "must": [
+                            {"exists": {"field": "project_id"}},
+                            {"term": {"project_id": customer_project_id}},
+                            {"bool": {"must_not": {"exists": {"field": "authorization_id"}}}}
+                        ]
                     }
-                ],
-                "boost_mode": "sum"  # Combine the base score with the boost weights
+                },
+                "weight": 3  # Increase rank for Case 2
+            })
+
+        # Build the final boosted query only if there are boost functions defined
+        if functions:
+            boosted_query = {
+                "function_score": {
+                    "query": {
+                        "bool": {
+                            "must": base_filter,
+                            "should": base_query["bool"]["should"],
+                            "minimum_should_match": 1  # At least one condition must match
+                        }
+                    },
+                    "functions": functions,
+                    "boost_mode": "sum"  # Combine the base score with the boost weights
+                }
             }
-        }
+        else:
+            # Fallback to the base query if no boost conditions are applicable
+            boosted_query = {
+                "bool": {
+                    "must": base_filter,
+                    "should": base_query["bool"]["should"],
+                    "minimum_should_match": 1  # At least one condition must match
+                }
+            }
 
         return boosted_query
