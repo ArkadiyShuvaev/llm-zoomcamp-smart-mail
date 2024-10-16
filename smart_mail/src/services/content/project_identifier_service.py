@@ -4,7 +4,6 @@ import torch
 from sklearn.metrics.pairwise import cosine_similarity
 
 from dtos.identified_project import IdentifiedProject
-from services.content.text_preprocessor import TextPreprocessor
 
 
 class ProjectIdentifierService:
@@ -15,13 +14,11 @@ class ProjectIdentifierService:
         self._model = AutoModel.from_pretrained(self._model_name)
 
     def extract_project(self, input_text: str, similarity_threshold: float = 0.2) -> IdentifiedProject | None:
-        text_preprocessor = TextPreprocessor()
-        preprocessed_text = text_preprocessor.preprocess(input_text)
         # Get embeddings for the input text
-        input_embedding = self._get_embeddings(preprocessed_text)
+        input_embedding = self._get_embeddings(input_text)
 
         # Get embeddings for each project name
-        project_embeddings = [self._get_embeddings(text_preprocessor.preprocess(project_name)) for project_name in self._project_names]
+        project_embeddings = [self._get_embeddings(project_name) for project_name in self._project_names]
 
         # Compute cosine similarities between input text and each project name
         similarities: List[float] = [cosine_similarity(input_embedding.unsqueeze(0), proj_emb.unsqueeze(0)).item() for proj_emb in project_embeddings]
