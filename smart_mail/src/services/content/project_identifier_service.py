@@ -13,7 +13,7 @@ class ProjectIdentifierService:
         self._tokenizer = AutoTokenizer.from_pretrained(self._model_name)
         self._model = AutoModel.from_pretrained(self._model_name)
 
-    def extract_project(self, input_text: str, similarity_threshold: float = 0.2) -> IdentifiedProject | None:
+    def extract_project(self, input_text: str, similarity_threshold: float = 0.185) -> IdentifiedProject | None:
         # Get embeddings for the input text
         input_embedding = self._get_embeddings(input_text)
 
