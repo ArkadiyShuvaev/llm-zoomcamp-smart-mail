@@ -1,6 +1,6 @@
 import time
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from common.settings import Settings
 from services.database.database_service import DatabaseService
@@ -9,6 +9,8 @@ from services.generation.generation_service import GenerationService
 from services.prompt_creator import PromptCreator
 from services.retrieval_service import RetrievalService
 from services.reciprocal_rank_fusion_service import ReciprocalRankFusionService
+from services.content.content_data_preparer import ContentDataPreparer
+from services.search_result import SearchResult
 
 
 class EmailHandler:
@@ -23,6 +25,7 @@ class EmailHandler:
         generation_service: GenerationService,
         database_service: DatabaseService,
         reciprocal_rank_fusion_service: ReciprocalRankFusionService,
+        content_data_preparer: ContentDataPreparer,
         settings: Settings
     ) -> None:
         self._retrieval_service = retrieval_service
@@ -30,6 +33,7 @@ class EmailHandler:
         self._generation_service = generation_service
         self._database_service = database_service
         self.reciprocal_rank_fusion_service = reciprocal_rank_fusion_service
+        self._content_data_preparer = content_data_preparer
         self._settings = settings
         self._logger = logging.getLogger(__name__)
 
@@ -37,19 +41,18 @@ class EmailHandler:
         self._logger.info("Handling email from: %s, subject: %s", email_from, subject)
 
         start_time = time.time()
-        # user_metadata = UserMetadata.create(email_from)
 
-        retrieval_result = self._retrieval_service.search(body)
+        question = subject + " " + body
+        extracted_project_id = self._content_data_preparer.extract_project_id(question)
+        user_authorization_ids = self._content_data_preparer.get_user_authorization_ids(email_from)
+
+        self._logger.info("Processing content for the extracted project: %s", extracted_project_id)
+
+        search_params = self._create_search_params(question, extracted_project_id, user_authorization_ids)
+        retrieval_result = self._retrieval_service.search(**search_params)
 
         reranked_search_results = self.reciprocal_rank_fusion_service.rerank(retrieval_result)
-        used_results = reranked_search_results[:5]
-        prompt = self._prompt_creator.create(body, used_results)
-
-        start_llm_time = time.time()
-        # TODO: Add exception handling
-        generation_result = self._generation_service.get_answer(prompt)
-        end_llm_time = time.time()
-        elapsed_llm_time = end_llm_time - start_llm_time
+        prompt, generation_result, elapsed_llm_time = self._generate_answer(body, reranked_search_results)
 
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -58,6 +61,34 @@ class EmailHandler:
         self._logger.info(f"Created entity: {created_entity}")
 
         return str(generation_result.output_text)
+
+    def _generate_answer(self, question: str, reranked_search_results: List[SearchResult]) -> tuple[str, GenerationResult, float]:
+        if len(reranked_search_results) == 0:
+            return "", GenerationResult.empty(), 0.0
+
+        used_results = reranked_search_results[:10]
+        prompt = self._prompt_creator.create(question, used_results)
+
+        start_llm_time = time.time()
+        # TODO: Add exception handling
+        generation_result = self._generation_service.get_answer(prompt)
+        end_llm_time = time.time()
+        elapsed_llm_time = end_llm_time - start_llm_time
+        return prompt, generation_result, elapsed_llm_time
+
+    def _create_search_params(self,
+                              question: str,
+                              extracted_project_id: str | None,
+                              user_authorization_ids: List[str] | None) -> Dict[str, Any]:
+        search_params: Dict[str, Any] = {"question": question}
+
+        if extracted_project_id is not None:
+            search_params["customer_project_id"] = extracted_project_id
+
+        if user_authorization_ids is not None:
+            search_params["authorization_ids"] = user_authorization_ids
+
+        return search_params
 
     def _save_to_database(self, email_from: str, subject: str, body: str, prompt: str,
                           generation_result: GenerationResult, response_time: float, total_time: float):

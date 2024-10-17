@@ -28,7 +28,7 @@ class AwsGenerationService(GenerationService):
         model = self._settings.aws_model_name
 
         # See https://docs.aws.amazon.com/bedrock/latest/userguide/bedrock-runtime_example_bedrock-runtime_InvokeModel_AnthropicClaude_section.html
-        request = {
+        request: Dict[str, Any] = {
             "anthropic_version": "bedrock-2023-05-31",
             "max_tokens": 2048,
             "messages": [
@@ -45,6 +45,7 @@ class AwsGenerationService(GenerationService):
             accept="*/*",
             body=json.dumps(request)
         )
+
         body_as_plain_text = response.get("body").read()
         response_body = json.loads(body_as_plain_text)
 

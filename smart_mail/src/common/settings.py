@@ -47,7 +47,7 @@ class Settings:
 
         self.aws_configuration_profile_name = self.get_env_variable("AWS_CONFIGURATION_PROFILE_NAME")
         session: Session = boto3.Session(profile_name=self.aws_configuration_profile_name)
-        self.aws_region_name = session.region_name if session.region_name is not None else self.get_env_variable("AWS_REGION_NAME")
+        self.aws_region_name = session.region_name if session.region_name else self.get_env_variable("AWS_REGION_NAME")
         self.aws_model_name = self.get_env_variable("AWS_MODEL_NAME")
 
     @staticmethod

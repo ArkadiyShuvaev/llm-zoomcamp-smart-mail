@@ -6,7 +6,7 @@ authors = ["Arkadiy Shuvaev <shuvaev.arkady@gmail.com>"]
 readme = "readme.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 requests = "^2.25.1"
 
 [tool.poetry.dev-dependencies]

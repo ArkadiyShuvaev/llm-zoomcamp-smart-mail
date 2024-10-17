@@ -37,12 +37,16 @@ def elasticsearch(data: DataFrame, *args, **kwargs):
         ),
         mappings=dict(
             properties=dict(
-                answer=dict(type="text"),
-                question=dict(type="text"),
-                category=dict(type="text"),
+                answer=dict(type="text", analyzer="german"),
+                question=dict(type="text", analyzer="german"),
+                category=dict(type="text", analyzer="german"),
+                project_name=dict(type="text", analyzer="german"),
                 document_id=dict(type="text"),
                 answer_instructions=dict(type="text"),
                 source_system=dict(type="keyword"),
+                project_id=dict(type="keyword"),
+                authorization_id=dict(type="keyword"),
+                published_at=dict(type="date"),
                 vector_question_answer=dict(
                     type="dense_vector",
                     dims=dimensions,

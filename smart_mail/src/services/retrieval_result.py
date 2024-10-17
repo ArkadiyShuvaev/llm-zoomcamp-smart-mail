@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List
 from services.search_result import SearchResult
 
+
 @dataclass
 class RetrievalResult:
     """

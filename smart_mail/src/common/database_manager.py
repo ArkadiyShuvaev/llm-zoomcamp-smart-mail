@@ -10,7 +10,7 @@ class DatabaseManager:
     def __init__(self, settings: Settings) -> None:
         encoded_password = quote_plus(settings.postgres_password)
         self.connection_string = f"postgresql://{settings.postgres_user}:{encoded_password}@{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"
-        self._engine = create_engine(self.connection_string, echo=True)
+        self._engine = create_engine(self.connection_string)
 
     @property
     def engine(self) -> Engine:

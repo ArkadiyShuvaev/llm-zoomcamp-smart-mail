@@ -31,11 +31,14 @@ fname_to_run = st.sidebar.selectbox('Select an app', fnames)
 fake_module_count = 0
 
 
-def load_module(filepath):
+def load_module(filepath: str):
     global fake_module_count
 
     modulename = '_dont_care_%s' % fake_module_count
     spec = importlib.util.spec_from_file_location(modulename, filepath)
+    if spec is None:
+        raise Exception('Could not find %s' % filepath)
+
     module = importlib.util.module_from_spec(spec)
     sys.modules[modulename] = module
 

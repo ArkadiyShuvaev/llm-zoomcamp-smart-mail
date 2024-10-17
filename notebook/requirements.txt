@@ -10,3 +10,4 @@ types-psycopg2
 sqlalchemy
 python-dotenv
 seaborn
+nltk

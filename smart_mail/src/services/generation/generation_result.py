@@ -19,3 +19,7 @@ class GenerationResult:
     completion_reason: str | None
     output_text: str
     text_generation_config: dict[str, Any] | None
+
+    @staticmethod
+    def empty() -> "GenerationResult":
+        return GenerationResult(0, 0, "", "Ich konnte keine genaue Antwort auf die Frage finden", {})

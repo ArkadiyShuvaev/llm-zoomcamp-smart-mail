@@ -10,6 +10,8 @@ if 'test' not in globals():
 def transform(data: DataFrame, *args, **kwargs):
     # There are data without a question
     data['question'] = data['question'].fillna('')
+    data['answer_instru'] = data['question'].fillna('')
+
     return data
 
 
