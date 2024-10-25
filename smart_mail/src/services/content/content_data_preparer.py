@@ -1,13 +1,13 @@
 from typing import Any, Dict, List
 
-from agents.projects_agent import ProjectsAgent
+from data_loaders.projects_loader import ProjectsLoader
 from dtos.project import Project
 from services.content.project_identifier_service import ProjectIdentifierService
 
 
 class ContentDataPreparer:
     def __init__(self):
-        self._list_of_projects: List[Project] = ProjectsAgent.get_projects()
+        self._list_of_projects: List[Project] = ProjectsLoader.get_projects()
         project_names = [project.name for project in self._list_of_projects]
         self._project_identifier_service = ProjectIdentifierService(project_names)
 
@@ -42,7 +42,7 @@ class ContentDataPreparer:
 
     # retrieves the list of projects in which a user invested for the given email.
     def get_user_projects(self, user_email: str) -> List[Project]:
-        return ProjectsAgent.get_projects_by_email(user_email)
+        return ProjectsLoader.get_projects_by_email(user_email)
 
     # retrieves the list of upcoming and delayed repayments for the given email.
     def get_repayments(self, user_email: str) -> List[Dict[str, Any]]:

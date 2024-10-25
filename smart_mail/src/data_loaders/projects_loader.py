@@ -5,7 +5,7 @@ from common.emails import get_email_with_investments_in_project1, get_email_with
 from dtos.project import Project
 
 
-class ProjectsAgent:
+class ProjectsLoader:
     """Agent to return a list of the projects"""
 
     @staticmethod
