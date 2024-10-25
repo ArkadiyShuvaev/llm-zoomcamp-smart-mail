@@ -6,7 +6,7 @@ from common.settings import Settings
 from services.database.database_service import DatabaseService
 from services.generation.generation_result import GenerationResult
 from services.generation.generation_service import GenerationService
-from services.prompt_creator import PromptCreator
+from services.generation.prompt_creator import PromptCreator
 from services.retrieval_service import RetrievalService
 from services.reciprocal_rank_fusion_service import ReciprocalRankFusionService
 from services.content.content_data_preparer import ContentDataPreparer

@@ -1,0 +1,16 @@
+{{ general_instructions }}
+
+{{ model_instructions }}
+
+Frage vom Kunden:
+{{ question }}
+
+Suchergebnisse:
+{% for doc in documents %}
+Suchergebnis Nummer {{ loop.index }}:
+Frage: {{ doc.question }},
+Antwort: {{ doc.answer }}
+{% if doc.answer_instructions %}
+Anweisungen zur Beantwortung: {{ doc.answer_instructions }}
+{% endif %}
+{% endfor %}

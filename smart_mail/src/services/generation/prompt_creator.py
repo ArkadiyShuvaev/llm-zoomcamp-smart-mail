@@ -1,10 +1,18 @@
+import os
 from typing import List
+from jinja2 import Environment, FileSystemLoader, PackageLoader
 
 from services.generation.generation_result import GenerationResult
 from services.search_result import SearchResult
 
-
 class PromptCreator:
+    def __init__(self):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        print(base_dir)
+        template_dir = os.path.join(base_dir, "templates")
+        env = Environment(loader=FileSystemLoader(template_dir))
+        self._template = env.get_template('prompt_template.jinja2')
+
     def create(self, question: str, documents: List[SearchResult]) -> str:
         """
         Create a prompt for answering a customer's question.
@@ -15,25 +23,22 @@ class PromptCreator:
 
         Returns:
             str: The generated prompt.
-
         """
 
         # TODO: Add condition to analyze the project name if one exists in the search results.
 
         general_instructions = self._get_general_instructions()
         model_instructions = self._get_model_instructions()
-        question = self._get_question(question)
         search_context = self._get_search_context(documents)
 
-        return self._get_prompt_general_template(general_instructions, model_instructions, question, search_context)
-
-    def _get_prompt_general_template(self, general_instructions: str, model_instructions: str, question: str, search_context: str) -> str:
-        return (
-            f"{general_instructions} \n"
-            f"{model_instructions} \n"
-            f"{question} \n"
-            f"{search_context}"
+        result = self._template.render(
+            general_instructions=general_instructions,
+            model_instructions=model_instructions,
+            question=question,
+            documents=documents
         )
+
+        return result
 
     def _get_general_instructions(self) -> str:
         return (
@@ -57,12 +62,6 @@ class PromptCreator:
             "- Du MUSST deine Antwort als HTML formatieren. Wenn deine Antwort eine Liste von Elementen enthält, formatierst du sie als ungeordnete Liste. \n"
             "- Falls die Frage eine mehrstufige Überlegung erfordert, solltest Du relevante Informationen aus den Suchergebnissen finden und die Antwort auf Grundlage der relevanten Informationen mit logischem Denken zusammenfassen.\n"
             f"- Falls die Suchergebnisse keine Informationen enthalten, die die Frage beantworten können, schreibe bitte: {GenerationResult.empty().output_text}."
-        )
-
-    def _get_question(self, question: str) -> str:
-        return (
-            f"Frage vom Kunden: \n"
-            f"{question}"
         )
 
     def _get_search_context(self, documents: List[SearchResult]) -> str:

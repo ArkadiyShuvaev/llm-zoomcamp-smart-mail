@@ -12,3 +12,4 @@ sqlalchemy
 python-dotenv
 pandas-stubs
 nltk
+jinja2
