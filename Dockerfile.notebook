@@ -1,0 +1,19 @@
+# Start from the base image specified in the original Docker Compose file
+FROM quay.io/jupyter/minimal-notebook:latest
+
+# Install tini
+USER root
+RUN apt-get update && apt-get install -y tini && apt-get clean
+
+# Add environment variables from the Docker Compose file
+ENV JUPYTER_ENABLE_LAB yes
+ENV GRANT_SUDO yes
+ENV JUPYTER_TOKEN easy
+ENV CHOWN_EXTRA /home/jovyan/work
+ENV CHOWN_EXTRA_OPTS -R
+
+# Make tini the entrypoint
+ENTRYPOINT ["/usr/bin/tini", "--"]
+
+# Default command to start Jupyter Lab
+CMD ["start-notebook.sh"]

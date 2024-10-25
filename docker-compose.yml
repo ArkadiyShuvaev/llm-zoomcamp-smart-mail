@@ -1,23 +1,19 @@
 services:
-  notebook:
-    image: quay.io/jupyter/minimal-notebook:latest
-    ports:
-      - "8888:8888"
-    depends_on:
-      - db
-    links:
-      - db
-    volumes:
-      - .:/home/jovyan/work:cached
-    env_file:
-      - ./notebook/.env.dev
-    environment:
-      - JUPYTER_ENABLE_LAB=yes
-      - GRANT_SUDO=yes
-      - JUPYTER_TOKEN=easy
-      - CHOWN_EXTRA=/home/jovyan/work
-      - CHOWN_EXTRA_OPTS=-R
-    user: root
+  # notebook:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.notebook
+  #   ports:
+  #     - "8888:8888"
+  #   depends_on:
+  #     - db
+  #   links:
+  #     - db
+  #   volumes:
+  #     - .:/home/jovyan/work:cached
+  #   env_file:
+  #     - ./notebook/.env.dev
+  #   user: root  # Set the user to root to match Dockerfile
 
   app:
     image: python:3.12
