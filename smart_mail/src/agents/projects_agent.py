@@ -68,8 +68,8 @@ class ProjectsAgent:
             Project.create(uuid.UUID("C0EFFCBA-AB7D-4DB2-BBBD-DA72EF272C7E"), "DFI Zukunftspark Oberfranken"),
             Project.create(uuid.UUID("4148DC9F-28CD-44E5-AB22-6B3F9B0DEBB9"), "OVUM Neue Mitte Braunsfeld II"),
             Project.create(uuid.UUID("5B83ABAD-A280-492B-A74D-11EC2883A370"), "DFI Zukunftspark Nordbayern"),
-            Project.create(uuid.UUID("118BBDEC-3A71-4E5F-B725-BDC85E4A31EB"), "Stadthaus 'Mozart'"),
-            Project.create(uuid.UUID("AFDD98B3-B93C-4803-8D60-FF1733217768"), "Stadthaus 'Mozart' II"),
+            Project.create(uuid.UUID("118BBDEC-3A71-4E5F-B725-BDC85E4A31EB"), "Stadthaus Mozart"),
+            Project.create(uuid.UUID("AFDD98B3-B93C-4803-8D60-FF1733217768"), "Stadthaus Mozart II"),
             Project.create(uuid.UUID("c827f162-6205-4688-84eb-6e1e2934595e"), "Pracht-Altbau Sendlinger Tor II"),
             Project.create(uuid.UUID("2e239357-4967-40e6-807e-b9eb87fab5ad"), "Pracht-Altbau Sendlinger Tor"),
         ]

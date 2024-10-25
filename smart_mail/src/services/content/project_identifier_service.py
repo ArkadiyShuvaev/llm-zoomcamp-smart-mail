@@ -1,3 +1,4 @@
+import re
 from typing import List
 from transformers import AutoTokenizer, AutoModel
 import torch
@@ -8,14 +9,15 @@ from dtos.identified_project import IdentifiedProject
 
 class ProjectIdentifierService:
     def __init__(self, project_names: List[str]):
-        self._project_names: List[str] = project_names
+        self._project_names: List[str] = [self._preprocess_text(project_name) for project_name in project_names]
         self._model_name = "sentence-transformers/distiluse-base-multilingual-cased-v1"
         self._tokenizer = AutoTokenizer.from_pretrained(self._model_name)
         self._model = AutoModel.from_pretrained(self._model_name)
 
-    def extract_project(self, input_text: str, similarity_threshold: float = 0.185) -> IdentifiedProject | None:
+    def extract_project(self, input_text: str, similarity_threshold: float = 0.180) -> IdentifiedProject | None:
+        preprocessed_text = self._preprocess_text(input_text)
         # Get embeddings for the input text
-        input_embedding = self._get_embeddings(input_text)
+        input_embedding = self._get_embeddings(preprocessed_text)
 
         # Get embeddings for each project name
         project_embeddings = [self._get_embeddings(project_name) for project_name in self._project_names]
@@ -39,3 +41,11 @@ class ProjectIdentifierService:
         with torch.no_grad():
             outputs = self._model(**inputs)
         return outputs.last_hidden_state.mean(dim=1).squeeze()
+
+    def _preprocess_text(self, text: str, lowercase: bool = True) -> str:
+        if lowercase:
+            text = text.lower()
+        # Remove special characters but keep spaces and German umlauts
+        text = re.sub(r'[^a-zäöüß\s-]', '', text, flags=re.IGNORECASE)
+        # Remove extra whitespace
+        return ' '.join(text.split())
