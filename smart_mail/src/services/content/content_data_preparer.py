@@ -37,7 +37,7 @@ class ContentDataPreparer:
         if len(user_projects) == 0:
             return None
 
-        user_authorization_ids = [str(project.id) for project in user_projects]
+        user_authorization_ids = [str(project.id).upper() for project in user_projects]
         return user_authorization_ids
 
     # retrieves the list of projects in which a user invested for the given email.
