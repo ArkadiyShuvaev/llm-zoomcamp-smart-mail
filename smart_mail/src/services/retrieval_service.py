@@ -222,7 +222,7 @@ class RetrievalService:
 
         # Optional filter: source_system
         base_filter = [{"term": {"source_system": source_system}}]
-        
+
         # Dynamically add the boost functions only if the relevant fields are present
         functions = []
 
@@ -257,7 +257,7 @@ class RetrievalService:
 
         # Build the final boosted query only if there are boost functions defined
         if functions:
-            boosted_query = {
+            query = {
                 "function_score": {
                     "query": {
                         "bool": {
@@ -272,7 +272,7 @@ class RetrievalService:
             }
         else:
             # Fallback to the base query if no boost conditions are applicable
-            boosted_query = {
+            query = {
                 "bool": {
                     "must": base_filter,
                     "should": base_query["bool"]["should"],
@@ -280,4 +280,4 @@ class RetrievalService:
                 }
             }
 
-        return boosted_query
+        return query
