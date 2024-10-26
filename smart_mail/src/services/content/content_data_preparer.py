@@ -18,8 +18,8 @@ class ContentDataPreparer:
             return None
 
         for project in self._list_of_projects:
-            if project.name.lower() == identified_project.name.lower():
-                return str(project.id)
+            if project.name.upper() == identified_project.name.upper():
+                return str(project.id).upper()
 
     def get_user_authorization_ids(self, email_from: str) -> List[str] | None:
         """

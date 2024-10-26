@@ -58,11 +58,11 @@ class RetrievalService:
         authorization_ids = authorization_ids or []
 
         # TODO: Move to Content Data preparer
-        customer_project_id_lowercased: str | None = str(customer_project_id).lower() if customer_project_id is not None else None
+        customer_project_id_upcased: str | None = str(customer_project_id) if customer_project_id is not None else None
         number_of_results_per_type = int(number_of_results / 2)
 
-        vector_result = self._get_vector_search_result(question, number_of_results_per_type, vector_field_name, customer_project_id_lowercased, authorization_ids)
-        text_result = self._get_text_retrieval_result(question, number_of_results_per_type, customer_project_id_lowercased, authorization_ids)
+        vector_result = self._get_vector_search_result(question, number_of_results_per_type, vector_field_name, customer_project_id_upcased, authorization_ids)
+        text_result = self._get_text_retrieval_result(question, number_of_results_per_type, customer_project_id_upcased, authorization_ids)
 
         # filtered_vector_result = self._filter_knn_results(vector_result, customer_project_id)
 
