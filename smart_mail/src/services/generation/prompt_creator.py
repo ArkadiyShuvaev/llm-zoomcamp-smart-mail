@@ -9,8 +9,8 @@ from services.search_result import SearchResult
 class PromptCreator:
     def __init__(self):
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        print(base_dir)
         template_dir = os.path.join(base_dir, "templates")
+
         env = Environment(loader=FileSystemLoader(template_dir))
         self._template = env.get_template('prompt_template.jinja2')
 
