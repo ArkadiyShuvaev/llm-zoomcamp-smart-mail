@@ -13,7 +13,7 @@ class ProjectsLoader:
         if email == get_email_with_investments_in_project1():
             return [
                 Project.create(uuid.UUID("00000000-0000-0000-0000-000000000002"), "Fake project 2"),
-                Project.create(uuid.UUID("2e239357-4967-40e6-807e-b9eb87fab5ad"), "Pracht-Altbau Sendlinger Tor")
+                Project.create(uuid.UUID("2E239357-4967-40E6-807E-B9EB87FAB5AD"), "Pracht-Altbau Sendlinger Tor")
             ]
 
         if email == get_email_with_investments_in_project2():
@@ -70,6 +70,6 @@ class ProjectsLoader:
             Project.create(uuid.UUID("5B83ABAD-A280-492B-A74D-11EC2883A370"), "DFI Zukunftspark Nordbayern"),
             Project.create(uuid.UUID("118BBDEC-3A71-4E5F-B725-BDC85E4A31EB"), "Stadthaus 'Mozart'"),
             Project.create(uuid.UUID("AFDD98B3-B93C-4803-8D60-FF1733217768"), "Stadthaus 'Mozart' II"),
-            Project.create(uuid.UUID("c827f162-6205-4688-84eb-6e1e2934595e"), "Pracht-Altbau Sendlinger Tor II"),
-            Project.create(uuid.UUID("2e239357-4967-40e6-807e-b9eb87fab5ad"), "Pracht-Altbau Sendlinger Tor"),
+            Project.create(uuid.UUID("C827F162-6205-4688-84EB-6E1E2934595E"), "Pracht-Altbau Sendlinger Tor II"),
+            Project.create(uuid.UUID("2E239357-4967-40E6-807E-B9EB87FAB5AD"), "Pracht-Altbau Sendlinger Tor"),
         ]
