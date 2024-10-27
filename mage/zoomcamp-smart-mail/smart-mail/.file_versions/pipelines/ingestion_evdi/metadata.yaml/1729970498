@@ -36,14 +36,14 @@ blocks:
   type: data_loader
   upstream_blocks: []
   uuid: load_project_csv_files
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: smart-mail/data_loaders/concatenate_csv_files.py
     file_source:
       path: smart-mail/data_loaders/concatenate_csv_files.py
   downstream_blocks:
-  - replace_none_values_with_empty
+  - preprocess_text
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -57,27 +57,27 @@ blocks:
   - load_project_csv_files
   - load_csv_files
   uuid: concatenate_csv_files
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
-    file_path: smart-mail/transformers/replace_none_values_with_empty.py
+    file_path: smart-mail/transformers/preprocess_text.py
     file_source:
-      path: smart-mail/transformers/replace_none_values_with_empty.py
+      path: smart-mail/transformers/preprocess_text.py
   downstream_blocks:
   - add_document_id_column
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: replace none values with empty
+  name: preprocess text
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: transformer
   upstream_blocks:
   - concatenate_csv_files
-  uuid: replace_none_values_with_empty
-- all_upstream_blocks_executed: true
+  uuid: preprocess_text
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_source:
@@ -94,9 +94,9 @@ blocks:
   timeout: null
   type: transformer
   upstream_blocks:
-  - replace_none_values_with_empty
+  - preprocess_text
   uuid: add_document_id_column
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_source:
@@ -115,7 +115,7 @@ blocks:
   upstream_blocks:
   - add_document_id_column
   uuid: create_embeddings
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_source:
