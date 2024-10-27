@@ -53,7 +53,7 @@ class EmailHandler:
         retrieval_result = self._retrieval_service.search(**search_params)
 
         reranked_search_results = self.reciprocal_rank_fusion_service.rerank(retrieval_result)
-        prompt, generation_result, elapsed_llm_time = self._generate_answer(body, reranked_search_results, extracted_project_id)
+        prompt, generation_result, elapsed_llm_time = self._generate_answer(body, reranked_search_results, email_from, extracted_project_id)
 
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -63,12 +63,12 @@ class EmailHandler:
 
         return str(generation_result.output_text)
 
-    def _generate_answer(self, question: str, reranked_search_results: List[SearchResult], extracted_project_id: str | None) -> tuple[str, GenerationResult, float]:
+    def _generate_answer(self, question: str, reranked_search_results: List[SearchResult], email_from: str, extracted_project_id: str | None) -> tuple[str, GenerationResult, float]:
         if len(reranked_search_results) == 0:
             return "", GenerationResult.empty(), 0.0
 
         used_results = reranked_search_results[:10]
-        prompt = self._prompt_creator.create(question, used_results, RepaymentScheduleLoader.get_repayment_schedule(extracted_project_id))
+        prompt = self._prompt_creator.create(question, used_results, RepaymentScheduleLoader.get_repayment_schedule(email_from, extracted_project_id))
 
         start_llm_time = time.time()
         # TODO: Add exception handling

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
+from common.emails import get_email_with_investments_in_project2
+
 
 @dataclass
 class Repayment:
@@ -26,8 +28,8 @@ class Repayment:
 class RepaymentScheduleLoader:
 
     @staticmethod
-    def get_repayment_schedule(project_id: str | None) -> List[Repayment]:
-        return RepaymentSchedule().get_payments(project_id)
+    def get_repayment_schedule(email_from: str, project_id: str | None) -> List[Repayment]:
+        return RepaymentSchedule().get_payments(email_from, project_id)
 
 
 class RepaymentSchedule:
@@ -54,8 +56,8 @@ class RepaymentSchedule:
         for data in payment_data:
             self.repayments.append(Repayment.from_string(*data))
 
-    def get_payments(self, project_id: str | None) -> List[Repayment]:
-        if project_id is not None and project_id.upper() == "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33":
+    def get_payments(self, email_from: str, project_id: str | None) -> List[Repayment]:
+        if project_id is not None and project_id.upper() == "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33" and email_from == get_email_with_investments_in_project2():
             return self.repayments
 
         return []
