@@ -44,4 +44,4 @@ class PromptCreator:
             customer_context = customer_context
         )
 
-        return result
+        return result.strip()
