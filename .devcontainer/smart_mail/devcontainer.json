@@ -30,7 +30,7 @@
       ]
     }
   },
-  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.cache && pip install -U --user -r requirements.txt && python download_nltk_data.py",
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.cache && pip install -U --user -r requirements.txt",
   "containerEnv": {
     "PYTHONPATH": "/workspace/smart_mail/src"
   }

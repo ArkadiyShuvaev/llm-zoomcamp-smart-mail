@@ -55,14 +55,16 @@ class RetrievalService:
         Returns:
             RetrievalResult: The retrieval result containing text_result_items and vector_result_items.
         """
+
+        preprocessed_question = ' '.join(question.lower().split())
         authorization_ids = authorization_ids or []
 
         # TODO: Move to Content Data preparer
-        customer_project_id_lowercased: str | None = str(customer_project_id).lower() if customer_project_id is not None else None
+        customer_project_id_upcased: str | None = str(customer_project_id) if customer_project_id is not None else None
         number_of_results_per_type = int(number_of_results / 2)
 
-        vector_result = self._get_vector_search_result(question, number_of_results_per_type, vector_field_name, customer_project_id_lowercased, authorization_ids)
-        text_result = self._get_text_retrieval_result(question, number_of_results_per_type, customer_project_id_lowercased, authorization_ids)
+        vector_result = self._get_vector_search_result(preprocessed_question, number_of_results_per_type, vector_field_name, customer_project_id_upcased, authorization_ids)
+        text_result = self._get_text_retrieval_result(preprocessed_question, number_of_results_per_type, customer_project_id_upcased, authorization_ids)
 
         # filtered_vector_result = self._filter_knn_results(vector_result, customer_project_id)
 
@@ -222,7 +224,7 @@ class RetrievalService:
 
         # Optional filter: source_system
         base_filter = [{"term": {"source_system": source_system}}]
-        
+
         # Dynamically add the boost functions only if the relevant fields are present
         functions = []
 
@@ -257,7 +259,7 @@ class RetrievalService:
 
         # Build the final boosted query only if there are boost functions defined
         if functions:
-            boosted_query = {
+            query = {
                 "function_score": {
                     "query": {
                         "bool": {
@@ -272,7 +274,7 @@ class RetrievalService:
             }
         else:
             # Fallback to the base query if no boost conditions are applicable
-            boosted_query = {
+            query = {
                 "bool": {
                     "must": base_filter,
                     "should": base_query["bool"]["should"],
@@ -280,4 +282,4 @@ class RetrievalService:
                 }
             }
 
-        return boosted_query
+        return query

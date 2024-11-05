@@ -1,9 +1,9 @@
 // Inspect Document Mapping
-GET http://localhost:9200/documents/_mapping
+GET http://elasticsearch:9200/documents/_mapping
 
 
 // Check Sample Document
-GET http://localhost:9200/documents/_doc/AodAd5IBsqFCQLJ6kEZY
+GET http://elasticsearch:9200/documents/_doc/AodAd5IBsqFCQLJ6kEZY
 Content-Type: application/json
 
 
@@ -23,7 +23,7 @@ Content-Type: application/json
 
 
 // Check Authorization ID Field Presence and Value
-GET http://localhost:9200/documents/_search
+GET http://elasticsearch:9200/documents/_search
 Content-Type: application/json
 {
   "query": {
@@ -34,15 +34,19 @@ Content-Type: application/json
 }
 
 
-// Check Authorization ID Field Presence and Value:
-GET http://localhost:9200/documents/_search
+// Fetch for the given authorization and project ids:
+GET http://elasticsearch:9200/documents/_search
 Content-Type: application/json
 {
   "query": {
-    "exists": {
-      "field": "authorization_id"
+    "bool": {
+        "must": [
+            {"term": {"project_id": "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"}},
+            {"term": {"authorization_id": "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"}}
+        ]
     }
-  }
+  },
+  "_source": ["score", "category", "question", "answer", "document_id", "answer_instructions", "project_id", "authorization_id", "project_name"]
 }
 
 // Check Specific Values of authorization_id
@@ -61,63 +65,165 @@ GET /your_index/_search
 
 
 // Examine the Query Execution Plan:
-GET http://localhost:9200/documents/_explain/AodAd5IBsqFCQLJ6kEZY
+GET http://elasticsearch:9200/documents/_explain/AodAd5IBsqFCQLJ6kEZY
 Content-Type: application/json
 {
   "query": {
     "bool": {
         "must": [
-            {"term": {"project_id": "0113c948-c9ce-4a3d-af99-d66bdede7d33"}},
-            {"term": {"authorization_id": "0113c948-c9ce-4a3d-af99-d66bdede7d33"}}
+            {"term": {"project_id": "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"}},
+            {"term": {"authorization_id": "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"}}
         ]
     }
   }
 }
 
-GET http://localhost:9200/documents/_search
+GET http://elasticsearch:9200/documents/_search
 Content-Type: application/json
 {
   "query":{
     "bool": {
-        "must": [
-            {
-                "multi_match": {
-                    "query": "Warum habe ich keine Zahlung für Project XYZ erhalten?",
-                    "fields": ["question^2", "answer^2", "category", "project_name"],
-                    "type": "best_fields"
+      "must": {
+        "multi_match": {
+          "query": "Bitte teilen Sie mir mit, wann die eingestellte Zinszahlung erfolgen wird.",
+          "fields": [
+            "question^2",
+            "answer^2",
+            "category",
+            "project_name"
+          ],
+          "type": "best_fields"
+        }
+      },
+      "filter": {
+        "function_score": {
+          "query": {
+            "bool": {
+              "must": [
+                {
+                  "term": {
+                    "source_system": "evdi"
+                  }
                 }
-            }
-        ],
-        "filter": [
-            # Public documents (no project_id and no authorization_id)
-            {
-                "bool": {
-                    "should": [
-                        # Case 1: Public documents (no project_id, no authorization_id)
-                        {"bool": {"must_not": {"exists": {"field": "project_id"}}}},
-
-                        # Case 2: Documents with project_id only
-                        {"bool": {
-                            "must": [
-                                {"exists": {"field": "project_id"}},
-                                {"term": {"project_id": "0113c948-c9ce-4a3d-af99-d66bdede7d33"}},
-                                {"bool": {"must_not": {"exists": {"field": "authorization_id"}}}}
-                            ]
-                        }},
-
-                        # Case 3: Documents with both project_id and authorization_id
-                        {"bool": {
-                            "must": [
-                                {"term": {"project_id": "0113c948-c9ce-4a3d-af99-d66bdede7d33"}},
-                                {"terms": {"authorization_id": ["0113c948-c9ce-4a3d-af99-d66bdede7d33"]}}
-                            ]
-                        }}
+              ],
+              "should": [
+                {
+                  "bool": {
+                    "must_not": {
+                      "exists": {
+                        "field": "project_id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "bool": {
+                    "must": [
+                      {
+                        "exists": {
+                          "field": "project_id"
+                        }
+                      },
+                      {
+                        "term": {
+                          "project_id": "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"
+                        }
+                      },
+                      {
+                        "bool": {
+                          "must_not": {
+                            "exists": {
+                              "field": "authorization_id"
+                            }
+                          }
+                        }
+                      }
                     ]
+                  }
+                },
+                {
+                  "bool": {
+                    "must": [
+                      {
+                        "term": {
+                          "project_id": "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"
+                        }
+                      },
+                      {
+                        "terms": {
+                          "authorization_id": [
+                            "00000000-0000-0000-0000-000000000001",
+                            "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33",
+                            "d1f21f84-9eec-4d0b-a63a-bf656a28a256",
+                            "716867b4-c28c-425e-94be-59886d853d49"
+                          ]
+                        }
+                      }
+                    ]
+                  }
                 }
+              ],
+              "minimum_should_match": 1
+            }
+          },
+          "functions": [
+            {
+              "filter": {
+                "bool": {
+                  "must": [
+                    {
+                      "term": {
+                        "project_id": "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"
+                      }
+                    },
+                    {
+                      "terms": {
+                        "authorization_id": [
+                          "00000000-0000-0000-0000-000000000001",
+                          "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33",
+                          "d1f21f84-9eec-4d0b-a63a-bf656a28a256",
+                          "716867b4-c28c-425e-94be-59886d853d49"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "weight": 5
             },
-            # Optional filters such as "source_system"
-            {"term": {"source_system": "evdi"}}
-        ]
+            {
+              "filter": {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
+                        "field": "project_id"
+                      }
+                    },
+                    {
+                      "term": {
+                        "project_id": "0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"
+                      }
+                    },
+                    {
+                      "bool": {
+                        "must_not": {
+                          "exists": {
+                            "field": "authorization_id"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "weight": 3
+            }
+          ],
+          "boost_mode": "sum"
+        }
+      }
     }
-}
+  },
+  "_source": ["score", "category", "question", "answer", "document_id", "answer_instructions", "project_id", "authorization_id", "project_name"]
 }
