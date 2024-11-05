@@ -11,6 +11,13 @@ services:
       - .:/home/jovyan/work:cached
     env_file:
       - ./notebook/.env.dev
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - GRANT_SUDO=yes
+      - JUPYTER_TOKEN=easy
+      - CHOWN_EXTRA=/home/jovyan/work
+      - CHOWN_EXTRA_OPTS=-R
+    user: root
     deploy:
       resources:
         limits:
@@ -45,7 +52,7 @@ services:
       - cluster.routing.allocation.disk.watermark.flood_stage.frozen=99%
 
   db:
-    image: postgres
+    image: postgres:16.4
     env_file:
       - ./smart_mail/.env.dev
     ports:
