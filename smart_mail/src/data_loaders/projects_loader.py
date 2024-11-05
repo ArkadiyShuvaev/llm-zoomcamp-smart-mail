@@ -5,23 +5,23 @@ from common.emails import get_email_with_investments_in_project1, get_email_with
 from dtos.project import Project
 
 
-class ProjectsAgent:
+class ProjectsLoader:
     """Agent to return a list of the projects"""
 
     @staticmethod
     def get_projects_by_email(email: str) -> List[Project]:
         if email == get_email_with_investments_in_project1():
             return [
-                Project.create(uuid.UUID("00000000-0000-0000-0000-000000000001"), "Fake project 1"),
-                Project.create(uuid.UUID("0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"), "The Five"),
-                Project.create(uuid.UUID("D1F21F84-9EEC-4D0B-A63A-BF656A28A256"), "DFI Zukunftspark Oberfranken V"),
-                Project.create(uuid.UUID("716867B4-C28C-425E-94BE-59886D853D49"), "Berliner Flair in Friedrichshain II")
+                Project.create(uuid.UUID("00000000-0000-0000-0000-000000000002"), "Fake project 2"),
+                Project.create(uuid.UUID("2E239357-4967-40E6-807E-B9EB87FAB5AD"), "Pracht-Altbau Sendlinger Tor")
             ]
 
         if email == get_email_with_investments_in_project2():
             return [
-                Project.create(uuid.UUID("00000000-0000-0000-0000-000000000002"), "Fake project 2"),
-                Project.create(uuid.UUID("2e239357-4967-40e6-807e-b9eb87fab5ad"), "Pracht-Altbau Sendlinger Tor")
+                Project.create(uuid.UUID("00000000-0000-0000-0000-000000000001"), "Fake project 1"),
+                Project.create(uuid.UUID("0113C948-C9CE-4A3D-AF99-D66BDEDE7D33"), "The Five"),
+                Project.create(uuid.UUID("D1F21F84-9EEC-4D0B-A63A-BF656A28A256"), "DFI Zukunftspark Oberfranken V"),
+                Project.create(uuid.UUID("716867B4-C28C-425E-94BE-59886D853D49"), "Berliner Flair in Friedrichshain II")
             ]
 
         return []
@@ -70,6 +70,6 @@ class ProjectsAgent:
             Project.create(uuid.UUID("5B83ABAD-A280-492B-A74D-11EC2883A370"), "DFI Zukunftspark Nordbayern"),
             Project.create(uuid.UUID("118BBDEC-3A71-4E5F-B725-BDC85E4A31EB"), "Stadthaus 'Mozart'"),
             Project.create(uuid.UUID("AFDD98B3-B93C-4803-8D60-FF1733217768"), "Stadthaus 'Mozart' II"),
-            Project.create(uuid.UUID("c827f162-6205-4688-84eb-6e1e2934595e"), "Pracht-Altbau Sendlinger Tor II"),
-            Project.create(uuid.UUID("2e239357-4967-40e6-807e-b9eb87fab5ad"), "Pracht-Altbau Sendlinger Tor"),
+            Project.create(uuid.UUID("C827F162-6205-4688-84EB-6E1E2934595E"), "Pracht-Altbau Sendlinger Tor II"),
+            Project.create(uuid.UUID("2E239357-4967-40E6-807E-B9EB87FAB5AD"), "Pracht-Altbau Sendlinger Tor"),
         ]

@@ -1,13 +1,13 @@
 from typing import Any, Dict, List
 
-from agents.projects_agent import ProjectsAgent
+from data_loaders.projects_loader import ProjectsLoader
 from dtos.project import Project
 from services.content.project_identifier_service import ProjectIdentifierService
 
 
 class ContentDataPreparer:
     def __init__(self):
-        self._list_of_projects: List[Project] = ProjectsAgent.get_projects()
+        self._list_of_projects: List[Project] = ProjectsLoader.get_projects()
         project_names = [project.name for project in self._list_of_projects]
         self._project_identifier_service = ProjectIdentifierService(project_names)
 
@@ -18,8 +18,8 @@ class ContentDataPreparer:
             return None
 
         for project in self._list_of_projects:
-            if project.name.lower() == identified_project.name.lower():
-                return str(project.id)
+            if project.name.upper() == identified_project.name.upper():
+                return str(project.id).upper()
 
     def get_user_authorization_ids(self, email_from: str) -> List[str] | None:
         """
@@ -37,12 +37,12 @@ class ContentDataPreparer:
         if len(user_projects) == 0:
             return None
 
-        user_authorization_ids = [str(project.id) for project in user_projects]
+        user_authorization_ids = [str(project.id).upper() for project in user_projects]
         return user_authorization_ids
 
     # retrieves the list of projects in which a user invested for the given email.
     def get_user_projects(self, user_email: str) -> List[Project]:
-        return ProjectsAgent.get_projects_by_email(user_email)
+        return ProjectsLoader.get_projects_by_email(user_email)
 
     # retrieves the list of upcoming and delayed repayments for the given email.
     def get_repayments(self, user_email: str) -> List[Dict[str, Any]]:

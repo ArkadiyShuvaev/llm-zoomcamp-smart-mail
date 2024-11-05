@@ -9,7 +9,7 @@ from common.sentence_transformer_model_factory import (
 )
 from services.database.answer_model import AnswerModel
 from services.database.database_service import DatabaseService
-from services.prompt_creator import PromptCreator
+from services.generation.prompt_creator import PromptCreator
 from services.reciprocal_rank_fusion_service import ReciprocalRankFusionService
 from services.retrieval_service import RetrievalService
 from services.content.content_data_preparer import ContentDataPreparer
