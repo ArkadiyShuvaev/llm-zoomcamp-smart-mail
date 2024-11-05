@@ -27,7 +27,6 @@
         "ms-python.isort",
         "ms-python.mypy-type-checker",
         "ms-python.black-formatter",
-        "GitHub.copilot-chat",
         "mechatroner.rainbow-csv",
         "donjayamanne.python-environment-manager",
         "ms-toolsai.vscode-jupyter-slideshow",
@@ -37,8 +36,11 @@
       ]
     }
   },
-  "postCreateCommand": "echo 'export PATH=$PATH:/home/jovyan/.local/bin' >> /home/jovyan/.bashrc && echo 'export PYTHONPATH=/home/jovyan/work/smart_mail/src:/home/jovyan/work/notebook/utils' >> /home/jovyan/.bashrc && . /home/jovyan/.bashrc && pip install -U --user -r requirements.txt && python download_nltk_data.py",
+  "postCreateCommand": "pip install -U --user -r requirements.txt && python download_nltk_data.py",
   "containerEnv": {
     "PYTHONPATH": "/home/jovyan/work/smart_mail/src:/home/jovyan/work/notebook/utils"
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/jovyan/.local/bin:/home/jovyan/work/smart_mail/src:/home/jovyan/work/notebook/utils"
   }
 }
