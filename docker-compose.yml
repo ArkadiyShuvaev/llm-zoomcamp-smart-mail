@@ -11,7 +11,6 @@ services:
       - .:/home/jovyan/work:cached
     env_file:
       - ./notebook/.env.dev
-    user: root  # Set the user to root to match Dockerfile
     deploy:
       resources:
         limits:
