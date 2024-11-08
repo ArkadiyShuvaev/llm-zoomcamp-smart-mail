@@ -48,4 +48,23 @@ def get_project_list() -> List[Project]:
         Project.create(uuid.UUID("AFDD98B3-B93C-4803-8D60-FF1733217768"), "Stadthaus 'Mozart' II"),
         Project.create(uuid.UUID("C827F162-6205-4688-84EB-6E1E2934595E"), "Pracht-Altbau Sendlinger Tor II"),
         Project.create(uuid.UUID("2E239357-4967-40E6-807E-B9EB87FAB5AD"), "Pracht-Altbau Sendlinger Tor"),
+
+        # Fiction project names. They do not exist in the real world and evaluation dataset.
+        Project.create(uuid.UUID("550BD3A9-CE29-4D6C-9993-2FC56AD7EC5A"), "Berggrün Anwesen Garmisch"),
+        Project.create(uuid.UUID("3A9550BD-E2C9-64DC-9399-D7E2F6A5C5CA"), "Berggrün Anwesen Garmisch IV"),
+        Project.create(uuid.UUID("38BE4DC2-F4F3-46B4-B74A-A2E70E2D4E8C"), "Stadtleben am Bodensee I"),
+        Project.create(uuid.UUID("8BE34DC2-3F4F-6B44-4B7A-E2E70D4E82AC"), "Stadtleben am Bodensee II"),
+        Project.create(uuid.UUID("A1375E89-14CD-45A3-A1E4-8DF17A8D82A1"), "Rheinknie-Residenz Bonn VI"),
+        Project.create(uuid.UUID("6BF14376-DD72-49B7-A76F-4B1E0B65D38A"), "Metropol-Komplex Dortmund II"),
+        Project.create(uuid.UUID("9D9EE4A0-8BBF-4870-9382-C63B4D90AC12"), "Weidengrund Hauptstadt III"),
+        Project.create(uuid.UUID("02C7B6DB-9A66-4293-9C26-5B5BFF0DD9EF"), "Altstadtblick Bamberg I"),
+        Project.create(uuid.UUID("45D23980-7AD6-4DF1-8186-C8F1D83D3F87"), "Waldsee Residenz Oberstdorf"),
+        Project.create(uuid.UUID("7F5FEE56-A4FF-4D66-AC5F-FDB6EF7CE1B1"), "Schlossviertel Weimar"),
+        Project.create(uuid.UUID("F59B1A60-5EEF-4E46-8E7A-3C8C15B2D850"), "Mainufer-Panorama Frankfurt"),
+        Project.create(uuid.UUID("B8B56E01-B594-4C14-99A8-65FA36203FCC"), "Bergkulisse Oberbayern"),
+        Project.create(uuid.UUID("2CD2F6C0-8C0A-4F7B-BE21-7AADFA8F0B0E"), "Straßburgblick Kehl"),
+        Project.create(uuid.UUID("55CE2B3C-F4A2-4A26-8AA2-6B7E54F7CCF8"), "Neckarquartier Heidelberg"),
+        Project.create(uuid.UUID("92FBC1C0-6CDA-4BD3-B868-EFBF84B3ED22"), "Moselgrün Cochem"),
+        Project.create(uuid.UUID("DE7E0CF1-6F4C-4AD1-BB5F-5F8A11D4ED47"), "Altstadtflair Rothenburg"),
+        Project.create(uuid.UUID("C4BB6FD6-D5F0-4EF6-8CF1-4D98A2B91E5E"), "Elbeblick Dresden")
     ]
