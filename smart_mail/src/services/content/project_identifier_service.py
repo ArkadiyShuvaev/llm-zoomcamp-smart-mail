@@ -13,7 +13,7 @@ class ProjectIdentifierService:
     def __init__(self, projects: Sequence[Project]):
         self._projects = projects
 
-        preprocessed_projects = [ self._create_project(project) for project in projects ]
+        preprocessed_projects = [ self._create_project_with_preprocessed_name(project) for project in projects ]
         self._sorted_projects_with_preprocessed_names = sorted(preprocessed_projects, key=lambda p: len(p.name), reverse=True)
 
         self._model_name = "sentence-transformers/distiluse-base-multilingual-cased-v1"
@@ -27,10 +27,7 @@ class ProjectIdentifierService:
         matched_projects = self.get_matched_projects(query)
 
         if matched_projects:
-            project = matched_projects[0]
-            confidence = 1  # Exact match, so confidence is 100%
-
-            return IdentifiedProject(project.name, project.id, confidence)
+            return self._get_matched_project(matched_projects)
 
         # Step 2: If no exact match, fall back to similarity matching
         project_match = self.extract_project_using_embeddings(query)
@@ -71,7 +68,17 @@ class ProjectIdentifierService:
             outputs = self._model(**inputs)
         return outputs.last_hidden_state.mean(dim=1).squeeze()
 
-    def _create_project(self, project: Project) -> Project:
+    def _create_project_with_preprocessed_name(self, project: Project) -> Project:
         project_name = TextPreprocessorService.preprocess_text(project.name)
         project = Project.create(project.id, project_name)
         return project
+
+    def _get_matched_project(self, matched_projects: Sequence[Project]) -> IdentifiedProject:
+        matched_project = matched_projects[0]
+        confidence = 1  # Exact match, so confidence is 100%
+
+        for proj in self._projects:
+            if proj.id == matched_project.id:
+                return IdentifiedProject(proj.name, proj.id, confidence)
+
+        raise Exception("Project not found.")
