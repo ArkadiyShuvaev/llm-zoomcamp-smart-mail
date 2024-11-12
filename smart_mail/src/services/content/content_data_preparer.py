@@ -1,25 +1,21 @@
 from typing import Any, Dict, List
 
 from data_loaders.projects_loader import ProjectsLoader
+from dtos.identified_project import IdentifiedProject
 from dtos.project import Project
 from services.content.project_identifier_service import ProjectIdentifierService
 
 
 class ContentDataPreparer:
     def __init__(self):
-        self._list_of_projects: List[Project] = ProjectsLoader.get_projects()
-        project_names = [project.name for project in self._list_of_projects]
-        self._project_identifier_service = ProjectIdentifierService(project_names)
+        self._list_of_projects = ProjectsLoader.get_projects()
+        self._project_identifier_service = ProjectIdentifierService(self._list_of_projects)
 
-    # extracts the project from the input text.
-    def extract_project_id(self, input_text: str) -> str | None:
+    def extract_project(self, input_text: str) -> IdentifiedProject | None:
+        """ Extracts the project from the input text. """
+
         identified_project = self._project_identifier_service.extract_project(input_text)
-        if identified_project is None:
-            return None
-
-        for project in self._list_of_projects:
-            if project.name.upper() == identified_project.name.upper():
-                return str(project.id).upper()
+        return identified_project
 
     def get_user_authorization_ids(self, email_from: str) -> List[str] | None:
         """
