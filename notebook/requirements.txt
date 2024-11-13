@@ -11,3 +11,5 @@ sqlalchemy
 python-dotenv
 seaborn
 nltk
+pandas-stubs
+fuzzywuzzy

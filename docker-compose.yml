@@ -36,6 +36,10 @@ services:
       - ./smart_mail/.env.dev
     environment:
       - STREAMLIT_SERVER_HEADLESS=true
+    deploy:
+      resources:
+        reservations:
+          memory: 512M
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.4.3

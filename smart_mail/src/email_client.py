@@ -1,4 +1,5 @@
 import streamlit as st
+import logging
 from common.client_factory import ClientFactory
 from common.emails import get_legitimate_emails, get_scammer_emails
 from handler.email_handler import EmailHandler
@@ -27,6 +28,10 @@ database_service = DatabaseService(database_manager)
 content_data_preparer = ContentDataPreparer()
 email_handler = EmailHandler(
     retrieval_service, PromptCreator(), generation_service, database_service, ReciprocalRankFusionService(), content_data_preparer, settings
+)
+logging.basicConfig(
+    level=logging.INFO,  # Set the log level to INFO to capture info and higher levels
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'  # Customize log format
 )
 
 database_manager.db_init()

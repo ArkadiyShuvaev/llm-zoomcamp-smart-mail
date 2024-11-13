@@ -12,6 +12,7 @@ from services.retrieval_service import RetrievalService
 from services.reciprocal_rank_fusion_service import ReciprocalRankFusionService
 from services.content.content_data_preparer import ContentDataPreparer
 from services.search_result import SearchResult
+from dtos.identified_project import IdentifiedProject
 
 
 class EmailHandler:
@@ -44,16 +45,17 @@ class EmailHandler:
         start_time = time.time()
 
         question = subject + " " + body
-        extracted_project_id = self._content_data_preparer.extract_project_id(question)
+        identified_project = self._content_data_preparer.extract_project(question)
+        identified_project_id = str(identified_project.id) if identified_project is not None else None
         user_authorization_ids = self._content_data_preparer.get_user_authorization_ids(email_from)
 
-        self._logger.info("Processing content for the extracted project: %s", extracted_project_id)
+        self._logger.info("Processing content for the extracted project: %s", identified_project)
 
-        search_params = self._create_search_params(question, extracted_project_id, user_authorization_ids)
+        search_params = self._create_search_params(question, identified_project, user_authorization_ids)
         retrieval_result = self._retrieval_service.search(**search_params)
 
         reranked_search_results = self.reciprocal_rank_fusion_service.rerank(retrieval_result)
-        prompt, generation_result, elapsed_llm_time = self._generate_answer(body, reranked_search_results, email_from, extracted_project_id)
+        prompt, generation_result, elapsed_llm_time = self._generate_answer(body, reranked_search_results, email_from, identified_project_id)
 
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -79,12 +81,12 @@ class EmailHandler:
 
     def _create_search_params(self,
                               question: str,
-                              extracted_project_id: str | None,
+                              identified_project: IdentifiedProject | None,
                               user_authorization_ids: List[str] | None) -> Dict[str, Any]:
         search_params: Dict[str, Any] = {"question": question}
 
-        if extracted_project_id is not None:
-            search_params["customer_project_id"] = extracted_project_id
+        if identified_project is not None:
+            search_params["customer_project_id"] = str(identified_project.id)
 
         if user_authorization_ids is not None:
             search_params["authorization_ids"] = user_authorization_ids

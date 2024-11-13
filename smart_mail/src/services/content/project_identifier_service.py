@@ -1,37 +1,65 @@
-from typing import List
+from typing import Sequence
 from transformers import AutoTokenizer, AutoModel
 import torch
 from sklearn.metrics.pairwise import cosine_similarity
 
 from dtos.identified_project import IdentifiedProject
 
+from dtos.project import Project
+from services.content.text_preprocessor_service import TextPreprocessorService
+
 
 class ProjectIdentifierService:
-    def __init__(self, project_names: List[str]):
-        self._project_names: List[str] = project_names
+    def __init__(self, projects: Sequence[Project]):
+        self._projects = projects
+
+        preprocessed_projects = [ self._create_project_with_preprocessed_name(project) for project in projects ]
+        self._sorted_projects_with_preprocessed_names = sorted(preprocessed_projects, key=lambda p: len(p.name), reverse=True)
+
         self._model_name = "sentence-transformers/distiluse-base-multilingual-cased-v1"
         self._tokenizer = AutoTokenizer.from_pretrained(self._model_name)
         self._model = AutoModel.from_pretrained(self._model_name)
 
-    def extract_project(self, input_text: str, similarity_threshold: float = 0.185) -> IdentifiedProject | None:
+        # Get embeddings for each project name
+        self._project_embeddings = [self._get_embeddings(project.name) for project in self._projects]
+
+    def extract_project(self, query: str, similarity_threshold: float = 0.5) -> IdentifiedProject | None:
+        matched_projects = self.get_matched_projects(query)
+
+        if matched_projects:
+            return self._get_matched_project(matched_projects)
+
+        # Step 2: If no exact match, fall back to similarity matching
+        project_match = self.extract_project_using_embeddings(query)
+        confidence = (project_match.similarity + 1) / 2
+
+        if confidence < similarity_threshold:
+            return None
+
+        return IdentifiedProject(project_match.name, project_match.id, confidence)
+
+    def get_matched_projects(self, query: str) -> Sequence[Project]:
+        query = TextPreprocessorService.preprocess_text(query)
+        matched_projects = [project for project in self._sorted_projects_with_preprocessed_names if project.name in query]
+
+        return matched_projects
+
+    def extract_project_using_embeddings(self, input_text: str) -> IdentifiedProject:
         # Get embeddings for the input text
+        input_text = input_text.replace("\n", " ").replace("\r", " ").replace("\t", " ").strip()
+
         input_embedding = self._get_embeddings(input_text)
 
-        # Get embeddings for each project name
-        project_embeddings = [self._get_embeddings(project_name) for project_name in self._project_names]
-
         # Compute cosine similarities between input text and each project name
-        similarities: List[float] = [cosine_similarity(input_embedding.unsqueeze(0), proj_emb.unsqueeze(0)).item() for proj_emb in project_embeddings]
+        similarities: Sequence[float] = [cosine_similarity(input_embedding.unsqueeze(0), proj_emb.unsqueeze(0)).item() for proj_emb in self._project_embeddings]
 
         max_similarity_value: float = max(similarities)
-        if max_similarity_value <= similarity_threshold:
-            return None
 
         # Find the most similar project name
         best_match_index = similarities.index(max_similarity_value)
-        best_project_name = self._project_names[best_match_index]
+        best_project = self._projects[best_match_index]
 
-        return IdentifiedProject(name=best_project_name, similarity=max_similarity_value)
+        return IdentifiedProject(best_project.name, best_project.id, max_similarity_value)
 
     # Tokenization function
     def _get_embeddings(self, text: str):
@@ -39,3 +67,18 @@ class ProjectIdentifierService:
         with torch.no_grad():
             outputs = self._model(**inputs)
         return outputs.last_hidden_state.mean(dim=1).squeeze()
+
+    def _create_project_with_preprocessed_name(self, project: Project) -> Project:
+        project_name = TextPreprocessorService.preprocess_text(project.name)
+        project = Project.create(project.id, project_name)
+        return project
+
+    def _get_matched_project(self, matched_projects: Sequence[Project]) -> IdentifiedProject:
+        matched_project = matched_projects[0]
+        confidence = 1  # Exact match, so confidence is 100%
+
+        for proj in self._projects:
+            if proj.id == matched_project.id:
+                return IdentifiedProject(proj.name, proj.id, confidence)
+
+        raise Exception("Project not found.")
