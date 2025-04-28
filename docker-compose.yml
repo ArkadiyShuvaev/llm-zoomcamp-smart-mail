@@ -10,6 +10,7 @@ services:
     volumes:
       - .:/home/jovyan/work:cached
     env_file:
+      # The order of these files is intentional: variables in .env.dev override those in .env.
       - ./notebook/.env
       - ./notebook/.env.dev
     environment:
